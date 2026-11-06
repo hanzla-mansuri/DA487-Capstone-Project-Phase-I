@@ -1,44 +1,43 @@
-# Explainable and Efficient Machine Learning for Short-Term Solar Power Forecasting
+# Explainable and Efficient Machine Learning for Multi-Horizon Solar Power Forecasting
 
-B.Sc. Data Science capstone (DA487), Phase I.
+B.Sc. Data Science capstone (DA487, 12 credits).
 
-**Plan:** baselines (persistence, linear) → XGBoost / LightGBM → LSTM → efficiency benchmark
-(train time, inference latency, model size) → SHAP explainability → residual-based underperformance flagging.
+## Scope
+- **Horizons:** 15 min, 1 hour, day-ahead.
+- **Models:** persistence / linear → XGBoost / LightGBM → LSTM.
+- **Efficiency benchmark:** training time, inference latency, model size, quantization.
+- **Explainability:** SHAP.
+- **Fault flagging:** residual-based underperformance detection.
+- **Generalisation:** testing on unseen stations.
+- **Deliverable:** Streamlit dashboard (in `app/`).
 
-**Current status:** repo scaffold + exploratory data analysis (`notebooks/01_eda.ipynb`). No models yet.
+## Dataset
+Primary: HKUST rooftop PV dataset (rooftop PV stations in Hong Kong, PV power plus on-site weather/microclimate).
 
-## Data
-Kaggle ["Solar Power Generation Data"](https://www.kaggle.com/datasets/anikannal/solar-power-generation-data):
-two plants in India, ~34 days, 15-minute intervals. Place the four CSVs in `data/raw/`
-(file names must contain `Plant_1` / `Plant_2` and `Generation` / `Weather`):
+> Lin et al., *Scientific Data* 2025, doi:[10.1038/s41597-025-04397-y](https://doi.org/10.1038/s41597-025-04397-y)
 
-```
-data/raw/Plant_1_Generation_Data.csv      data/raw/Plant_1_Weather_Sensor_Data.csv
-data/raw/Plant_2_Generation_Data.csv      data/raw/Plant_2_Weather_Sensor_Data.csv
-```
-`data/` and `models/` are git-ignored (only `.gitkeep` placeholders are tracked).
+Secondary (optional sanity check only): Kaggle "Solar Power Generation Data" (2 plants in India, ~34 days, 15-min).
+The earlier EDA notebook (`notebooks/01_eda.ipynb`) targets this dataset.
+
+The data is **not tracked in git** (~5.8 GB). Put it under `data/raw/`:
+`raw_data/` is the source of truth; `processed_data/` is the dataset authors' reference version.
+Details of what the local files actually contain are tracked in `WORKLOG.md` and will be formalised in the data-understanding step.
 
 ## Setup
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-jupyter lab            # or: jupyter nbconvert --to notebook --execute --inplace notebooks/01_eda.ipynb
+jupyter lab
 ```
-Run notebooks from inside `notebooks/` (paths are relative to it).
 
 ## Layout
 | Path | Purpose |
 |---|---|
-| `data/raw`, `data/processed` | original CSVs / cleaned data (git-ignored) |
+| `data/raw`, `data/processed` | source data / our cleaned data (git-ignored) |
 | `notebooks/` | analysis notebooks, numbered in run order |
-| `src/` | reusable code (preprocessing, features, models) |
+| `src/` | reusable code |
 | `models/` | saved models (git-ignored) |
-| `results/figures`, `results/tables` | all figures and tables used in the report |
-| `app/` | demo app (later) |
+| `results/figures`, `results/tables` | figures and tables for the report |
+| `app/` | Streamlit dashboard (later) |
 | `report/` | written report |
-
-## Notebooks
-1. `01_eda.ipynb` — data-quality audit: shapes/dtypes/missing/duplicates, datetime format verification,
-   timestamp gaps and generation↔weather alignment, DC/AC scale check, physical sanity checks,
-   exploratory plots, per-inverter comparison, and a preprocessing to-do list.
+| `WORKLOG.md` | dated log of work and hours |
