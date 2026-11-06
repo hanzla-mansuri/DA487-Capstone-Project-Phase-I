@@ -1,28 +1,41 @@
-# Data and trained models (large / reproducible from code)
-data/raw/*
-data/processed/*
+# Data (large; see DATA_SOURCES.md) - keep only .gitkeep placeholders
+data/**
+!data/**/
+!data/**/.gitkeep
+
+# Models and large outputs
 models/*
-!.gitkeep
+!models/.gitkeep
+results/**/*.parquet
+results/**/*.npy
+results/**/*.npz
 
-# Python / env
-venv/
-.venv/
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
-.DS_Store
-
-# Large / binary artefacts (never commit)
+# Large / binary artefacts
 *.zip
+*.csv.gz
+*.gz
 *.parquet
 *.h5
 *.hdf5
 *.pkl
 *.joblib
-*.npy
-*.npz
 *.pt
 *.pth
 *.onnx
 *.xlsx
+
+# Python / notebooks / environments
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# Secrets
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
 *:Zone.Identifier
