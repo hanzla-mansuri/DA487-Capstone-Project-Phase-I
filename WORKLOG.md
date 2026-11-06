@@ -17,3 +17,9 @@
 - Hardened `.gitignore`, added `.gitkeep`, `CLAUDE.md`, `DATA_SOURCES.md`, `PLAN.md`; updated README.
 - Documented both datasets (primary HKUST Dryad in `data/hkust/`, secondary Kaggle in `data/raw/`).
 - Pushed backup tag, both archive branches and `main` (fast-forward, no force). Stage 0 DONE.
+
+## 2026-11-06 (planning), hours: _TBD (fill in)_
+- Wrote the full `PLAN.md`: objectives and success criteria, Stages 0-11 (tasks, outputs, acceptance criteria, viva questions, hours, weeks), 12-week schedule with buffer, design decisions and risks, experiment protocol, Resume Protocol.
+- Rewrote `CLAUDE.md` (project summary and session-start rule); updated `README.md` (objective, scope, reproduce steps).
+- Checked the `.ttl` metadata field names (ratedPowerOutput, tiltAngle, azimuth, connectionDate) to plan capacity normalisation; values not yet parsed.
+- Waiting for approval of `PLAN.md` before Stage 1 (EDA).
