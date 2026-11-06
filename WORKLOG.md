@@ -16,4 +16,4 @@
 - Merged remote `main` with `--allow-unrelated-histories` (no force push); archived old notebook/figures under `archive/`.
 - Hardened `.gitignore`, added `.gitkeep`, `CLAUDE.md`, `DATA_SOURCES.md`, `PLAN.md`; updated README.
 - Documented both datasets (primary HKUST Dryad in `data/hkust/`, secondary Kaggle in `data/raw/`).
-- Nothing pushed yet; waiting for approval.
+- Pushed backup tag, both archive branches and `main` (fast-forward, no force). Stage 0 DONE.

@@ -2,7 +2,7 @@
 
 Stages are approved one at a time. Later stages are added only after approval.
 
-## Stage 0: Git setup. READY (awaiting push approval)
+## Stage 0: Git setup. DONE
 **Acceptance criteria**
 - [x] Working tree clean (only the user's untracked `test.py` remains).
 - [x] Old code archived with normal commits (`archive/`); no history rewrite, no force push.
@@ -10,4 +10,4 @@ Stages are approved one at a time. Later stages are added only after approval.
 - [x] Backup tag `backup-before-capstone-cleanup` and branches `archive/old-scope`, `archive/github-old-main` exist locally.
 - [x] No tracked file over 50 MB; no secrets or data tracked.
 - [x] Local git identity set for this repo only.
-- [ ] Remote synced (`main`, both archive branches and the tag pushed): **pending user approval of the push**.
+- [x] Remote synced: `main`, `archive/old-scope`, `archive/github-old-main` and tag `backup-before-capstone-cleanup` pushed (verified with `git ls-remote`).
