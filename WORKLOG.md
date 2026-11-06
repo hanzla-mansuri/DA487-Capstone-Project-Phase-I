@@ -23,3 +23,8 @@
 - Rewrote `CLAUDE.md` (project summary and session-start rule); updated `README.md` (objective, scope, reproduce steps).
 - Checked the `.ttl` metadata field names (ratedPowerOutput, tiltAngle, azimuth, connectionDate) to plan capacity normalisation; values not yet parsed.
 - Waiting for approval of `PLAN.md` before Stage 1 (EDA).
+
+## 2026-11-06 (plan review), hours: _TBD (fill in)_
+- User revised `PLAN.md` (140 h incl. 10 h buffer; §3 design decisions; leakage, fault-detection and generalisation fixes).
+- Fixed two consistency issues (Kaggle cut-list order; pvlib/pyarrow install task) and committed the plan.
+- Pushed `main` to GitHub (fast-forward to `cb3bd74`). Next: Stage 1 (EDA), awaiting go-ahead.
