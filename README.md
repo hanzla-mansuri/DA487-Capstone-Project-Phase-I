@@ -12,16 +12,14 @@ B.Sc. Data Science capstone (DA487, 12 credits).
 - **Deliverable:** Streamlit dashboard (in `app/`).
 
 ## Dataset
-Primary: HKUST rooftop PV dataset (rooftop PV stations in Hong Kong, PV power plus on-site weather/microclimate).
+Primary: HKUST rooftop PV dataset (Dryad, doi:10.5061/dryad.m37pvmd99): 60 rooftop PV stations in Hong Kong, 2021-2023, plus campus weather.
 
 > Lin et al., *Scientific Data* 2025, doi:[10.1038/s41597-025-04397-y](https://doi.org/10.1038/s41597-025-04397-y)
 
-Secondary (optional sanity check only): Kaggle "Solar Power Generation Data" (2 plants in India, ~34 days, 15-min).
-The earlier EDA notebook (`notebooks/01_eda.ipynb`) targets this dataset.
+Secondary (optional sanity check only): Kaggle "HK-Rooftop-Microclimate-PV" (HKUST, 2024-2025). The earlier Kaggle India dataset was dropped; its notebook is in `archive/`.
 
-The data is **not tracked in git** (~5.8 GB). Put it under `data/raw/`:
-`raw_data/` is the source of truth; `processed_data/` is the dataset authors' reference version.
-Details of what the local files actually contain are tracked in `WORKLOG.md` and will be formalised in the data-understanding step.
+Full source links, citations and licence status: see [`DATA_SOURCES.md`](DATA_SOURCES.md).
+Place the primary data in `data/hkust/` and the secondary data in `data/raw/`. Neither is tracked in git (~6.5 GB).
 
 ## Setup
 ```bash
@@ -29,15 +27,18 @@ python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 jupyter lab
 ```
+To reproduce: obtain the data as described in `DATA_SOURCES.md`, then run the numbered notebooks in `notebooks/` in order (none yet; the stage plan is in `PLAN.md` once approved).
 
 ## Layout
 | Path | Purpose |
 |---|---|
-| `data/raw`, `data/processed` | source data / our cleaned data (git-ignored) |
+| `data/hkust`, `data/raw`, `data/processed` | primary data / secondary data / our cleaned data (git-ignored) |
 | `notebooks/` | analysis notebooks, numbered in run order |
 | `src/` | reusable code |
 | `models/` | saved models (git-ignored) |
 | `results/figures`, `results/tables` | figures and tables for the report |
 | `app/` | Streamlit dashboard (later) |
 | `report/` | written report |
+| `archive/` | old Kaggle-India scope (kept for reference) |
 | `WORKLOG.md` | dated log of work and hours |
+| `DATA_SOURCES.md` | dataset sources, citations, licences |
