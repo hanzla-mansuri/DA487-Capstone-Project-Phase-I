@@ -11,3 +11,18 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .DS_Store
+
+# Large / binary artefacts (never commit)
+*.zip
+*.parquet
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+*.npy
+*.npz
+*.pt
+*.pth
+*.onnx
+*.xlsx
+*:Zone.Identifier
