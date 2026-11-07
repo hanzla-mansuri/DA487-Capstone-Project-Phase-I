@@ -1,0 +1,69 @@
+expected_steps,missing_steps,pct_missing,n_gaps,longest_gap_steps,longest_gap_hours,name,has_optimizer,pct_missing_0700_1759,days_with_missing,kind
+72960,135,0.19,12,44,11.0,Indoor Sports Centre,True,0.4,12.0,station
+90624,21,0.02,19,2,0.5,LSK North,True,0.05,19.0,station
+90624,2571,2.84,76,44,11.0,LSK South,True,6.19,76.0,station
+55584,1204,2.17,67,44,11.0,Library,True,4.73,41.0,station
+75936,1732,2.28,45,44,11.0,S H Ho Sports Hall,True,4.98,45.0,station
+84768,31,0.04,5,25,6.25,SQ Apartment1-12,True,0.08,5.0,station
+84768,27,0.03,2,26,6.5,SQ Apartment13-24,True,0.07,2.0,station
+84768,37,0.04,12,26,6.5,SQ Apartment25-36,True,0.1,11.0,station
+84768,375,0.44,206,25,6.25,SQ Apartment37-48,True,0.97,189.0,station
+17664,677,3.83,24,44,11.0,SQ Block P,True,8.36,23.0,station
+75936,33,0.04,14,8,2.0,SQ Block R,True,0.09,14.0,station
+75936,27,0.04,20,7,1.75,SQ Block S,True,0.08,20.0,station
+90624,16,0.02,13,4,1.0,SQ1,True,0.04,13.0,station
+90624,18,0.02,17,2,0.5,SQ2,True,0.04,15.0,station
+90624,23,0.03,21,2,0.5,SQ3,True,0.06,21.0,station
+90624,16,0.02,15,2,0.5,SQ4,True,0.04,15.0,station
+87744,14,0.02,13,2,0.5,SQ567,True,0.03,13.0,station
+14688,242,1.65,13,44,11.0,Shaw Auditorium,True,3.59,13.0,station
+87744,570,0.65,34,44,11.0,UG Hall2 2F,True,1.42,34.0,station
+87744,944,1.08,243,44,11.0,UG Hall2 RF,True,2.35,217.0,station
+87744,207,0.24,16,44,11.0,UG Hall3,True,0.51,15.0,station
+87744,7,0.01,7,1,0.25,UG Hall4,True,0.02,7.0,station
+90624,35,0.04,19,7,1.75,UG Hall6,True,0.08,19.0,station
+90624,15,0.02,15,1,0.25,UG Hall7,True,0.04,14.0,station
+29280,117,0.4,5,44,11.0,UG Hall8,True,0.87,5.0,station
+31104,121,0.39,6,44,11.0,UG Hall9,True,0.85,6.0,station
+73056,25,0.03,18,5,1.25,Wong Check She Research Centre,True,0.07,18.0,station
+87744,57,0.06,24,31,7.75,Zone A1,True,0.14,24.0,station
+87744,618,0.7,39,44,11.0,Zone A2,True,1.54,38.0,station
+87744,229,0.26,29,44,11.0,Zone A4,True,0.57,29.0,station
+75936,41,0.05,14,28,7.0,Zone A5,True,0.12,14.0,station
+75936,24,0.03,18,5,1.25,Zone A6,True,0.07,18.0,station
+75936,1589,2.09,243,44,11.0,Zone A7,True,4.57,226.0,station
+68256,410,0.6,19,44,11.0,Zone D,True,1.31,18.0,station
+64416,1249,1.94,41,44,11.0,Zone J1,True,4.23,41.0,station
+74784,2193,2.93,74,44,11.0,Zone J2,True,6.4,67.0,station
+55584,2338,4.21,252,44,11.0,Zone L2,True,9.18,191.0,station
+23303,937,4.02,96,10,10.0,CYT (Station 1),False,8.77,96.0,station
+22872,280,1.22,28,10,10.0,CYT (Station 2),False,2.67,28.0,station
+20656,444,2.15,51,10,10.0,SQ Apartment37-48 Flexible PV,False,4.69,51.0,station
+9052,258,2.85,29,10,10.0,SQ Block Q (Phrase 2),False,6.22,29.0,station
+9071,248,2.73,29,10,10.0,SQ Block Q,False,5.96,29.0,station
+22066,398,1.8,45,10,10.0,SQ10,False,3.94,45.0,station
+22067,413,1.87,48,10,10.0,SQ11,False,4.08,48.0,station
+24300,469,1.93,56,10,10.0,SQ12,False,4.2,56.0,station
+24299,489,2.01,59,10,10.0,SQ13,False,4.39,57.0,station
+23843,440,1.85,50,10,10.0,SQ14,False,4.03,50.0,station
+24300,417,1.72,55,10,10.0,SQ15,False,3.74,55.0,station
+24299,504,2.07,60,10,10.0,SQ16,False,4.53,60.0,station
+24299,793,3.26,91,10,10.0,SQ17,False,7.12,91.0,station
+13354,280,2.1,33,10,10.0,SQ18,False,4.58,33.0,station
+24635,470,1.91,59,10,10.0,SQ19,False,4.15,57.0,station
+19972,258,1.29,31,10,10.0,SQ567 Flexible PV,False,2.82,31.0,station
+23837,739,3.1,80,10,10.0,SQ8,False,6.76,80.0,station
+23842,755,3.17,83,10,10.0,SQ9,False,6.91,83.0,station
+15514,257,1.66,29,10,10.0,Tower A,False,3.61,29.0,station
+19991,2122,10.61,222,10,10.0,UG Hall4 Flexible PV,False,23.16,222.0,station
+19972,259,1.3,34,10,10.0,UG Hall7 Flexible PV,False,2.83,34.0,station
+23859,460,1.93,58,10,10.0,Zone L1 (Station 1),False,4.21,49.0,station
+23855,443,1.86,84,10,10.0,Zone L1(Station 2),False,4.05,56.0,station
+1576800,9008,0.57,7,5924,98.73,Irradiance (W/m2),,,,weather
+1576800,9088,0.58,13,5924,98.73,Temp (Degree Celsius),,,,weather
+1576800,9135,0.58,41,5924,98.73,RH (%),,,,weather
+1576800,9008,0.57,7,5924,98.73,SLP (hPa),,,,weather
+1576800,9008,0.57,7,5924,98.73,Vis (km),,,,weather
+1576800,9625,0.61,331,5924,98.73,Wind Speed (m/s),,,,weather
+1576800,9625,0.61,331,5924,98.73,Wind Direction (degree),,,,weather
+1051200,9006,0.86,5,5924,98.73,Rainfall(mm),,,,weather
