@@ -58,3 +58,11 @@
 - Weather and power sit on the same minute grid (weather on whole minutes, power on :00/:15/:30/:45 and :00).
 - Consequence for Stage 2: a 15-min row labelled t is known only at t+15 min; features and the forecast issue time must respect that.
 - Next Stage 1 task: profile missing data and gaps per station and per weather variable.
+
+## 2026-11-07 (Stage 1: missing data and gaps), hours: _TBD (fill in)_
+- Added `src/quality.py` (basic gap helpers) and section 5 of `notebooks/01_eda.ipynb`; saved `results/tables/01_missing_summary.csv` (60 stations + 8 weather variables) and figures `01_missing_by_station.png`, `01_missing_by_hour.png`.
+- Stations: 15-min optimizer median 0.19 % missing (max 4.2 %); hourly median 1.9 % (max 10.6 %, UG Hall4 Flexible PV). Missing values only occur 07:00-17:59 (night zeros are recorded), so inside that window the worst station misses 23 %.
+- Typical gap = one lost daytime of one day (10 steps hourly, 44 steps = 11 h at 15 min). Mostly station-specific; system-wide days: 2021-04-28 (all 11 active), 2021-05-12 (all 12), 2023-09-08 (42 of 60).
+- Weather: 0.57-0.86 % of minutes missing; shared gap of 98.7 h from 2023-09-10 06:58 (inside the 2023 test year; exclude those targets in Stage 2, no filling), then 44.7 h (2022-12-02) and 6.6 h (2022-01-19).
+- Stage 1 tasks done so far: loaders, station inventory, timezone/units, timestamp convention, missing-data profile. Next: find outliers (negative power, power far above rated, irradiance above 1500 W/m2). User said WORKLOG is not submitted, so entries are optional; this one was requested at the end of the session.
+- Nothing pushed; local `main` is ahead of `origin/main`.
