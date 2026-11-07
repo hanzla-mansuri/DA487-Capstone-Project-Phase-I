@@ -15,6 +15,11 @@ Data files are **not tracked in git** (see `.gitignore`). Neither dataset ships 
 - **Period:** 2021-01-01 to 2023-12-31 (stations start between 2021-03 and 2023-08).
 - **Known quirks to handle later:** at least one non-optimizer station has implausible power values (max ~31 MW); irradiance reaches 3608 W/m2; a few negative power values in non-optimizer files.
 
+### Units and timezone (verified in `notebooks/01_eda.ipynb`, section 3)
+- **Power:** `power(W)`; `generation(kWh)` is the energy of the step. Hourly stations: kWh x 1000 = W exactly (where not missing). 15-min stations: summed kWh is 2.8-3.3 % above W x 0.25 h / 1000, so `power(W)` is only approximately the step mean.
+- **Irradiance:** W/m2, never negative; 739 of 1,567,792 values exceed 1500 W/m2 (max 3608.6); small night offset (median ~5 W/m2 between 00:00 and 04:59).
+- **Timezone:** timestamps have no timezone; the irradiance peak matches local Hong Kong time (UTC+8, no DST). Whether timestamps label the start or end of an interval is **not yet determined** (separate Stage 1 task).
+
 ## 2. SECONDARY: HK-Rooftop-Microclimate-PV (Kaggle)
 - **Location:** `data/raw/`
 - **Source:** https://www.kaggle.com/datasets/ipcheng1845620444/hk-rooftop-microclimate-pv

@@ -43,3 +43,10 @@
 - Counts agree with `DATA_SOURCES.md`: 37 optimizer stations at 15 min, 23 non-optimizer at 60 min, 44 inverter files. (Station-set gate not closed yet; that is a separate task.)
 - Notes: 4 optimizer stations start in 2023 (SQ Block P, Shaw Auditorium, UG Hall8, UG Hall9); `Zone L1 (Station 1)` runs to 2024-01-01 03:00 (outside the stated period); tilt/azimuth are kept as raw text (several are `Mixed` or two values like `0/15deg`) and need a documented parsing rule in Stage 2.
 - Next Stage 1 task: confirm the timezone and units (W vs kWh; irradiance W/m2).
+
+## 2026-11-07 (Stage 1: timezone and units), hours: _TBD (fill in)_
+- Added section 3 to `notebooks/01_eda.ipynb` (basic cells) and `results/figures/01_irradiance_by_hour.png`; documented the results in `DATA_SOURCES.md`.
+- Power/energy: hourly stations have kWh x 1000 = W exactly; 15-min stations have summed kWh 2.8-3.3 % above W x 0.25 h / 1000, so `power(W)` is only approximately the step mean (target choice to be decided in Stage 2; W is planned).
+- Irradiance is in W/m2, never negative, 739 of 1,567,792 values above 1500 (max 3608.6), night offset median ~5 W/m2.
+- Timezone: irradiance centre of mass is 12.0-12.6 h in every month vs expected solar noon ~12.1-12.6 h, so timestamps are local Hong Kong time (UTC+8). Interval start/end convention still open.
+- Next Stage 1 task: determine the timestamp convention (interval start vs end label) for power and weather, and check weather/power alignment.

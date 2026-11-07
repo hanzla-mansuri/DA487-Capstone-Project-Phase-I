@@ -48,7 +48,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
 - **Tasks**
   - [x] Write `src/data_io.py` loaders that read in chunks and use explicit timestamp formats.
   - [x] Build a station inventory from `.ttl` and the CSVs: type (optimizer or not), resolution, start/end dates, rated power, tilt, azimuth, latitude/longitude.
-  - [ ] Confirm the timezone and units (W vs kWh; irradiance W/m²).
+  - [x] Confirm the timezone and units (W vs kWh; irradiance W/m²).
   - [ ] **Determine the timestamp convention** (interval start vs end label) for power and for weather, and check the 1-min weather timestamps align with the power timestamps.
   - [ ] Profile missing data and gaps per station and per weather variable.
   - [ ] Find outliers: negative power, implausible maximum vs rated power (one station shows ~31 MW), irradiance above 1500 W/m².
