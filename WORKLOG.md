@@ -28,3 +28,11 @@
 - User revised `PLAN.md` (140 h incl. 10 h buffer; §3 design decisions; leakage, fault-detection and generalisation fixes).
 - Fixed two consistency issues (Kaggle cut-list order; pvlib/pyarrow install task) and committed the plan.
 - Pushed `main` to GitHub (fast-forward to `cb3bd74`). Next: Stage 1 (EDA), awaiting go-ahead.
+
+## 2026-11-07 (Stage 1: data loaders), hours: _TBD (fill in)_
+- Wrote `src/data_io.py`: chunked loaders for site-level power, inverter and 1-min weather files, with explicit timestamp formats (Zone.Identifier files ignored).
+- Smoke-tested on all files: 60 site files (37 optimizer / 23 non-optimizer), 44 inverter files (37 stations), 7 weather variables load cleanly. Rainfall covers 2022-2023 only (`Rainfall_2021.xlsx` not loaded).
+- Finding: two timestamp styles exist (ISO `2023-07-01 00:15:00` in 84 files, slash `2021/7/1 0:00` in 20 files, including 10 site files and 13 inverter files). Each file is uniform; the loader picks one of the two whitelisted formats per file and still parses strictly.
+- Finding (for the audit, loaders do not alter data): 4 site files have duplicate timestamps (`SQ Apartment37-48 Flexible PV` 432, `SQ14` 586 and not sorted, `Zone L1 (Station 1)` 10099, `Zone L1(Station 2)` 2074). To be handled in Stage 1/2.
+- Finding: weather series have fewer rows than the 1,576,800 minutes in 3 years (e.g. irradiance 1,567,792), so there are gaps to profile.
+- Next Stage 1 task: build the station inventory from `.ttl` and the CSVs.

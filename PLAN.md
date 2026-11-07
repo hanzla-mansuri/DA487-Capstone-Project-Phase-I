@@ -43,10 +43,10 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
 - **Viva question:** "How do you guarantee reproducibility, and that no data or secrets are in the repo?"
 
 ### Stage 1: EDA and data audit (primary data)
-- **Status:** NOT STARTED · **Hours:** 12 · **Weeks:** 1-2
+- **Status:** IN PROGRESS · **Hours:** 12 · **Weeks:** 1-2
 - **Goal:** understand the stations, weather and data quality before any modelling, and **confirm or revise the assumptions this plan makes** (station sets, resolutions, location/timezone).
 - **Tasks**
-  - [ ] Write `src/data_io.py` loaders that read in chunks and use explicit timestamp formats.
+  - [x] Write `src/data_io.py` loaders that read in chunks and use explicit timestamp formats.
   - [ ] Build a station inventory from `.ttl` and the CSVs: type (optimizer or not), resolution, start/end dates, rated power, tilt, azimuth, latitude/longitude.
   - [ ] Confirm the timezone and units (W vs kWh; irradiance W/m²).
   - [ ] **Determine the timestamp convention** (interval start vs end label) for power and for weather, and check the 1-min weather timestamps align with the power timestamps.
