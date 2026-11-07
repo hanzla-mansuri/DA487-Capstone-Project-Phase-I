@@ -18,7 +18,7 @@ Data files are **not tracked in git** (see `.gitignore`). Neither dataset ships 
 ### Units and timezone (verified in `notebooks/01_eda.ipynb`, section 3)
 - **Power:** `power(W)`; `generation(kWh)` is the energy of the step. Hourly stations: kWh x 1000 = W exactly (where not missing). 15-min stations: summed kWh is 2.8-3.3 % above W x 0.25 h / 1000, so `power(W)` is only approximately the step mean.
 - **Irradiance:** W/m2, never negative; 739 of 1,567,792 values exceed 1500 W/m2 (max 3608.6); small night offset (median ~5 W/m2 between 00:00 and 04:59).
-- **Timezone:** timestamps have no timezone; the irradiance peak matches local Hong Kong time (UTC+8, no DST). Whether timestamps label the start or end of an interval is **not yet determined** (separate Stage 1 task).
+- **Timezone:** timestamps have no timezone; the irradiance peak matches local Hong Kong time (UTC+8, no DST). - **Interval label (inferred from correlation with 1-min irradiance, `notebooks/01_eda.ipynb` section 4; not stated in the dataset files):** 15-min optimizer stations are labelled at the interval **start** (`t` = `[t, t+15 min)`, best offset ~15 min, stable across 2021-2023); hourly stations are labelled at the interval **end** (`t` = `[t-60 min, t)`). Accuracy of the offset is about +-3 min. A 15-min row labelled `t` is therefore only known at `t + 15 min`.
 
 ## 2. SECONDARY: HK-Rooftop-Microclimate-PV (Kaggle)
 - **Location:** `data/raw/`

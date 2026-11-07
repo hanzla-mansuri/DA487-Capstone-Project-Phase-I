@@ -50,3 +50,11 @@
 - Irradiance is in W/m2, never negative, 739 of 1,567,792 values above 1500 (max 3608.6), night offset median ~5 W/m2.
 - Timezone: irradiance centre of mass is 12.0-12.6 h in every month vs expected solar noon ~12.1-12.6 h, so timestamps are local Hong Kong time (UTC+8). Interval start/end convention still open.
 - Next Stage 1 task: determine the timestamp convention (interval start vs end label) for power and weather, and check weather/power alignment.
+
+## 2026-11-07 (Stage 1: timestamp convention), hours: _TBD (fill in)_
+- Added section 4 to `notebooks/01_eda.ipynb`; tables `results/tables/01_timestamp_alignment_15min.csv` and `_hourly.csv`; figure `results/figures/01_timestamp_alignment.png`.
+- Method: correlation between station power and 1-min irradiance averaged over a 15-/60-min window shifted by k minutes (daytime only).
+- Result: 15-min optimizer stations peak at k ~ 15 (label = interval START, same in 2021/2022/2023, same for power and generation); hourly stations peak at k between -10 and 0 (label = interval END). The two station types use different conventions. Offset accuracy about +-3 min; relative to the weather timestamps; not stated in the dataset documentation (inferred).
+- Weather and power sit on the same minute grid (weather on whole minutes, power on :00/:15/:30/:45 and :00).
+- Consequence for Stage 2: a 15-min row labelled t is known only at t+15 min; features and the forecast issue time must respect that.
+- Next Stage 1 task: profile missing data and gaps per station and per weather variable.
