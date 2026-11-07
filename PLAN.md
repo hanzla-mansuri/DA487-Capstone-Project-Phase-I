@@ -383,7 +383,8 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
    - Make a small commit (`feat:` / `docs:` / `chore:` / `fix:`).
 5. If the plan must change, edit `PLAN.md` first, add a Change log entry below, and tell the user.
 6. When a stage is done, give a 10-line summary with key numbers and **ask for approval** before the next stage.
-7. Never push without approval. Never force push, rebase, `reset --hard` or amend pushed commits. Never commit `data/` or `models/`. Never fabricate numbers, citations or licences; mark anything unknown as *unverified*.
+7. **Code style:** all code in every notebook is very basic. Lengthy code is split into separate blocks (cells). No complex code.
+8. Never push without approval. Never force push, rebase, `reset --hard` or amend pushed commits. Never commit `data/` or `models/`. Never fabricate numbers, citations or licences; mark anything unknown as *unverified*.
 
 ---
 
@@ -394,3 +395,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-06 | Replaced the Stage 0-only plan with the full 12-stage plan. | The user requested a master plan. |
 | 2026-11-06 | Plan review applied. Added §3 (design decisions). Stage 8 now uses an expected-power model without own-power lags plus a baseline detector and false-alarm rate. Day-ahead formulation, issue time and benchmark persistence defined; criterion 1 reworded for day-ahead. Final models refit on train + validation. Causal fill, `is_filled` mask, timestamp convention and train-only capacity fallback added. Station-set gate added to Stage 1. Kaggle check reframed as a transfer check and its cut-list link to criterion 5 made explicit. Station-grouped K-fold and block-bootstrap CIs added. End-to-end latency, ONNX/int8 paths separated. SHAP stability extended to retrain seeds. Dashboard demo bundle added. Hours rebalanced: Stage 2 16→20, Stage 5 14→12 (LSTM for 15-min and 1-h only), Stage 8 10→12; total 140 h with a 10 h buffer; weekly table now sums to the stage total. Stage 0 licence task moved to a carry-over line. Section 2-3 heading renumbered. | Review findings: leakage and fault-masking risks, schedule not adding up (136 h stages vs 132 h weekly vs 130 h budget), inconsistent Kaggle cut/criterion. |
 | 2026-11-06 | Kaggle check labelled the second cut-list item in Stage 9 and §5 (matching §4). Stage 2 task added to install `pvlib` and `pyarrow`. | Consistency fixes after reviewing the user's plan edit. |
+| 2026-11-07 | Added a code-style rule (Resume Protocol §8, item 7; also in `CLAUDE.md`): all notebook code is very basic, lengthy code is split into separate blocks, no complex code. | User request. |

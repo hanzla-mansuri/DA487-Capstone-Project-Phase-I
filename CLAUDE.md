@@ -20,3 +20,4 @@ Follow the Resume Protocol in `PLAN.md` §8. In short:
 - Never fabricate numbers, citations or licences.
 - Sample or chunk large files.
 - Reusable code goes in `src/`; notebooks are for exploration and figures. Explain decisions in markdown so they can be defended in the viva.
+- **Keep all code very basic in every notebook.** If a piece of code is lengthy, split it into separate blocks (cells). No complex code.
