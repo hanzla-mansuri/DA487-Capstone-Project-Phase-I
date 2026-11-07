@@ -36,3 +36,10 @@
 - Finding (for the audit, loaders do not alter data): 4 site files have duplicate timestamps (`SQ Apartment37-48 Flexible PV` 432, `SQ14` 586 and not sorted, `Zone L1 (Station 1)` 10099, `Zone L1(Station 2)` 2074). To be handled in Stage 1/2.
 - Finding: weather series have fewer rows than the 1,576,800 minutes in 3 years (e.g. irradiance 1,567,792), so there are gaps to profile.
 - Next Stage 1 task: build the station inventory from `.ttl` and the CSVs.
+
+## 2026-11-07 (Stage 1: station inventory), hours: _TBD (fill in)_
+- Wrote `src/inventory.py` (regex parse of the `.ttl`, file facts from each CSV, join by normalised name) and started `notebooks/01_eda.ipynb` (short basic cells).
+- Saved `results/tables/01_station_inventory.csv`: 60 rows (type, resolution, start/end, rows, duplicates, inverter files, lat/lon, altitude, rated kW, tilt, azimuth, contractor). All 60 files matched a `.ttl` system (one manual name fix: Indoor Sports Centre); all rated powers are in kW.
+- Counts agree with `DATA_SOURCES.md`: 37 optimizer stations at 15 min, 23 non-optimizer at 60 min, 44 inverter files. (Station-set gate not closed yet; that is a separate task.)
+- Notes: 4 optimizer stations start in 2023 (SQ Block P, Shaw Auditorium, UG Hall8, UG Hall9); `Zone L1 (Station 1)` runs to 2024-01-01 03:00 (outside the stated period); tilt/azimuth are kept as raw text (several are `Mixed` or two values like `0/15deg`) and need a documented parsing rule in Stage 2.
+- Next Stage 1 task: confirm the timezone and units (W vs kWh; irradiance W/m2).

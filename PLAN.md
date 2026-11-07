@@ -47,7 +47,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
 - **Goal:** understand the stations, weather and data quality before any modelling, and **confirm or revise the assumptions this plan makes** (station sets, resolutions, location/timezone).
 - **Tasks**
   - [x] Write `src/data_io.py` loaders that read in chunks and use explicit timestamp formats.
-  - [ ] Build a station inventory from `.ttl` and the CSVs: type (optimizer or not), resolution, start/end dates, rated power, tilt, azimuth, latitude/longitude.
+  - [x] Build a station inventory from `.ttl` and the CSVs: type (optimizer or not), resolution, start/end dates, rated power, tilt, azimuth, latitude/longitude.
   - [ ] Confirm the timezone and units (W vs kWh; irradiance W/m²).
   - [ ] **Determine the timestamp convention** (interval start vs end label) for power and for weather, and check the 1-min weather timestamps align with the power timestamps.
   - [ ] Profile missing data and gaps per station and per weather variable.
