@@ -66,3 +66,9 @@
 - Weather: 0.57-0.86 % of minutes missing; shared gap of 98.7 h from 2023-09-10 06:58 (inside the 2023 test year; exclude those targets in Stage 2, no filling), then 44.7 h (2022-12-02) and 6.6 h (2022-01-19).
 - Stage 1 tasks done so far: loaders, station inventory, timezone/units, timestamp convention, missing-data profile. Next: find outliers (negative power, power far above rated, irradiance above 1500 W/m2). User said WORKLOG is not submitted, so entries are optional; this one was requested at the end of the session.
 - Nothing pushed; local `main` is ahead of `origin/main`.
+
+## 2026-11-15 (Stage 1 finished, Stage 2 started), hours: _TBD (fill in)_
+- Stage 1 tasks done and approved: outliers (section 6; table `01_outlier_summary.csv`), day/night and seasonal profiles (7), power vs irradiance (8; table `01_power_vs_irradiance.csv`), station-set gate (9; table `01_station_sets.csv`: 31 of 37 optimizer and 51 of 60 stations seen in train, validation and test), findings summary and preprocessing to-do list (10). PLAN changes: irradiance limit 1500 -> 2000 W/m2; Stage 2 station sets updated (Change log 2026-11-15).
+- Stage 2 started: installed `pvlib` and `pyarrow` (pinned in `requirements.txt`). Added `src/preprocess.py` with `resolve_duplicates` (duplicate copies usually disagree: identical copies merged, disagreeing copies set to missing; details in `DATA_SOURCES.md`) and `to_interval_start` (hourly stations shifted by -1 h).
+- Open: cleaning task not finished (next: out-of-range power/irradiance rules, grid, gap fill with `is_filled`, night = 0). `SQ Apartment37-48 Flexible PV` over-rated values in 2023-11/12 coincide with its duplicate timestamps (cause unverified). Licence check and submission/viva dates still open. Per-station % missing and outlier flags are in separate tables, not in the inventory.
+- Nothing pushed; local `main` is ahead of `origin/main`.
