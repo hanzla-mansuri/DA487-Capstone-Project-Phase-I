@@ -15,6 +15,8 @@ Data files are **not tracked in git** (see `.gitignore`). Neither dataset ships 
 - **Period:** 2021-01-01 to 2023-12-31 (stations start between 2021-03 and 2023-08).
 - **Known quirks to handle later:** at least one non-optimizer station has implausible power values (max ~31 MW); irradiance reaches 3608 W/m2; a few negative power values in non-optimizer files.
 
+- **Duplicate timestamps (checked in Stage 2):** 4 site files repeat timestamps, and the copies usually disagree (disagreeing timestamps / duplicated timestamps: `SQ Apartment37-48 Flexible PV` 432/432, `SQ14` 383/586, `Zone L1 (Station 1)` 5937/10087, `Zone L1(Station 2)` 1548/1566). Up to 4 copies per timestamp. The cause is not stated in the files (*unverified*); in `Zone L1 (Station 1)` the copies are close (correlation 0.98), in the others they are not. Rule in `src/preprocess.py`: identical copies are merged, disagreeing copies are set to missing.
+
 ### Units and timezone (verified in `notebooks/01_eda.ipynb`, section 3)
 - **Power:** `power(W)`; `generation(kWh)` is the energy of the step. Hourly stations: kWh x 1000 = W exactly (where not missing). 15-min stations: summed kWh is 2.8-3.3 % above W x 0.25 h / 1000, so `power(W)` is only approximately the step mean.
 - **Irradiance:** W/m2, never negative; 739 of 1,567,792 values exceed 1500 W/m2 (max 3608.6); small night offset (median ~5 W/m2 between 00:00 and 04:59).
