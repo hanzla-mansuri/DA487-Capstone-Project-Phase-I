@@ -32,3 +32,19 @@ def resolve_duplicates(df):
         "rows_out": len(out),
     }
     return out, counts
+
+
+def to_interval_start(df, has_optimizer):
+    """Label every row with the START of its time interval.
+
+    From Stage 1 (timestamp convention):
+    - 15-min optimizer stations are already labelled at the interval start;
+    - hourly stations are labelled at the interval end, so we subtract 1 hour.
+
+    Note: a row labelled t is only known at the END of its interval
+    (t + 15 min or t + 1 h). Features and forecast issue times must respect this.
+    """
+    out = df.copy()
+    if not has_optimizer:
+        out.index = out.index - pd.Timedelta("1h")
+    return out
