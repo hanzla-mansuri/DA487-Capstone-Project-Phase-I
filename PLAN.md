@@ -55,7 +55,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
   - [x] Check day/night patterns and seasonal profiles.
   - [x] Plot power vs irradiance per station type.
   - [x] **Station-set gate:** confirm which stations really support each horizon (the plan assumes 37 optimizer stations for 15-min and all 60 for 1-h/day-ahead). If the counts differ, update §2 Stage 2 and add a Change log entry.
-  - [ ] Write a findings summary and a preprocessing to-do list.
+  - [x] Write a findings summary and a preprocessing to-do list.
 - **Inputs:** `data/hkust/`.
 - **Outputs:**
   - `notebooks/01_eda.ipynb`, `src/data_io.py`
