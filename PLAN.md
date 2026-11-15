@@ -51,7 +51,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
   - [x] Confirm the timezone and units (W vs kWh; irradiance W/m²).
   - [x] **Determine the timestamp convention** (interval start vs end label) for power and for weather, and check the 1-min weather timestamps align with the power timestamps.
   - [x] Profile missing data and gaps per station and per weather variable.
-  - [ ] Find outliers: negative power, implausible maximum vs rated power (one station shows ~31 MW), irradiance above 1500 W/m².
+  - [x] Find outliers: negative power, implausible maximum vs rated power (one station shows ~31 MW), irradiance above 1500 W/m².
   - [ ] Check day/night patterns and seasonal profiles.
   - [ ] Plot power vs irradiance per station type.
   - [ ] **Station-set gate:** confirm which stations really support each horizon (the plan assumes 37 optimizer stations for 15-min and all 60 for 1-h/day-ahead). If the counts differ, update §2 Stage 2 and add a Change log entry.
@@ -319,7 +319,7 @@ If a stage slips, use the buffer in weeks 11-12 first. If that runs out, cut in 
 | **Single campus weather source** (no per-station weather, no NWP) | Use station metadata (tilt, azimuth, capacity) plus the station's own lags. State the limitation clearly. Day-ahead uses clear-sky and lagged features only; report it as the weakest horizon and do not require positive skill for it. |
 | **Night-time zeros** inflate all-hours scores | Report metrics for all hours and for daytime only (sun elevation > 5°). Set night predictions to 0. |
 | **Capacity differences** between stations | Normalise targets by rated power from the `.ttl`. If the rated power is missing or implausible, use the 99th percentile of train power and document that. Report nMAE. |
-| **Outliers / unit errors** (e.g. a ~31 MW max, irradiance up to 3608 W/m²) | Use physical bounds: power ≤ 1.2 × rated, irradiance ≤ 1500 W/m². Flag the values, then clip or drop them as documented in Stage 1. |
+| **Outliers / unit errors** (e.g. a ~31 MW max, irradiance up to 3608 W/m²) | Use physical bounds: power ≤ 1.2 × rated, irradiance ≤ 2000 W/m² (1500-2000 flagged and kept). Flag the values, then clip or drop them as documented in Stage 1. |
 | **Stations starting in 2023** | Exclude them from training. Use them in the unseen-station test. |
 | **Unseen-station split (6 stations is one draw)** | Fixed seed, listed in `results/tables/02_split_summary.csv`, plus station-grouped K-fold for the GBM. Seen vs unseen compared over the same period. |
 | **One test year, differences may be noise** | Block-bootstrap CIs on skill and nMAE. |
@@ -396,3 +396,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-06 | Plan review applied. Added §3 (design decisions). Stage 8 now uses an expected-power model without own-power lags plus a baseline detector and false-alarm rate. Day-ahead formulation, issue time and benchmark persistence defined; criterion 1 reworded for day-ahead. Final models refit on train + validation. Causal fill, `is_filled` mask, timestamp convention and train-only capacity fallback added. Station-set gate added to Stage 1. Kaggle check reframed as a transfer check and its cut-list link to criterion 5 made explicit. Station-grouped K-fold and block-bootstrap CIs added. End-to-end latency, ONNX/int8 paths separated. SHAP stability extended to retrain seeds. Dashboard demo bundle added. Hours rebalanced: Stage 2 16→20, Stage 5 14→12 (LSTM for 15-min and 1-h only), Stage 8 10→12; total 140 h with a 10 h buffer; weekly table now sums to the stage total. Stage 0 licence task moved to a carry-over line. Section 2-3 heading renumbered. | Review findings: leakage and fault-masking risks, schedule not adding up (136 h stages vs 132 h weekly vs 130 h budget), inconsistent Kaggle cut/criterion. |
 | 2026-11-06 | Kaggle check labelled the second cut-list item in Stage 9 and §5 (matching §4). Stage 2 task added to install `pvlib` and `pyarrow`. | Consistency fixes after reviewing the user's plan edit. |
 | 2026-11-07 | Added a code-style rule (Resume Protocol §8, item 7; also in `CLAUDE.md`): all notebook code is very basic, lengthy code is split into separate blocks, no complex code. | User request. |
+| 2026-11-15 | Irradiance outlier limit raised from 1500 to 2000 W/m² in the §5 risk table (Stage 1 outlier check). | 739 values exceed 1500 but 557 are below 1600 (plausible cloud-enhancement peaks around noon); only 5 exceed 2000. |
