@@ -52,7 +52,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
   - [x] **Determine the timestamp convention** (interval start vs end label) for power and for weather, and check the 1-min weather timestamps align with the power timestamps.
   - [x] Profile missing data and gaps per station and per weather variable.
   - [x] Find outliers: negative power, implausible maximum vs rated power (one station shows ~31 MW), irradiance above 1500 W/m².
-  - [ ] Check day/night patterns and seasonal profiles.
+  - [x] Check day/night patterns and seasonal profiles.
   - [ ] Plot power vs irradiance per station type.
   - [ ] **Station-set gate:** confirm which stations really support each horizon (the plan assumes 37 optimizer stations for 15-min and all 60 for 1-h/day-ahead). If the counts differ, update §2 Stage 2 and add a Change log entry.
   - [ ] Write a findings summary and a preprocessing to-do list.
