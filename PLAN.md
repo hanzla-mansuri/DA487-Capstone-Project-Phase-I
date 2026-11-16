@@ -89,7 +89,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
   - [ ] Build targets for each horizon (t+15 min, t+1 h, day-ahead per §3).
   - [ ] Choose the station sets (as confirmed by the Stage 1 gate):
     - 15-min horizon: the optimizer stations (plus inverter data): 37 have the resolution, 31 are seen in train, validation and test (Stage 1 gate, `results/tables/01_station_sets.csv`).
-    - 1-h and day-ahead: all stations with the needed resolution: 60, of which 51 are seen in train, validation and test.
+    - 1-h and day-ahead: all stations with the needed resolution: 60, of which 51 are seen in train, validation and test. **`UG Hall4 Flexible PV` is dropped** (zero output in 64 % of high-irradiance hours), leaving 59, of which 50 are seen.
     - Stations with little or no training data are the first candidates for the unseen-station set.
   - [ ] Chronological split: train = start-2022-09-30, validation = 2022-10-01-2022-12-31, test = 2023 (full year). Confirm in EDA that each season is in train.
   - [ ] Unseen-station split: hold out ~6 stations (fixed seed; listed in the split table) plus the stations that start in 2023. Also define **station-grouped K-fold** folds for the GBM generalisation estimate (Stage 9). Sets are defined per horizon set.
@@ -399,3 +399,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-07 | Added a code-style rule (Resume Protocol §8, item 7; also in `CLAUDE.md`): all notebook code is very basic, lengthy code is split into separate blocks, no complex code. | User request. |
 | 2026-11-15 | Irradiance outlier limit raised from 1500 to 2000 W/m² in the §5 risk table (Stage 1 outlier check). | 739 values exceed 1500 but 557 are below 1600 (plausible cloud-enhancement peaks around noon); only 5 exceed 2000. |
 | 2026-11-15 | Station-set gate closed (Stage 1). Resolution counts as planned (37 for 15 min, 60 for 1 h/day-ahead), but only 31 and 51 stations have enough data in train, validation and test (thresholds 180 / 45 / 180 days). Stage 2 station-set task updated with these counts. | Stage 1 gate result: 9 stations start in 2023 or have too little training data. |
+| 2026-11-16 | `UG Hall4 Flexible PV` dropped from all station sets (1-h/day-ahead: 60 → 59 stations, 51 → 50 seen). Other zero-output hours (power = 0 W at irradiance ≥ 400 W/m², `src/preprocess.py::flag_zero_fault`) are flagged, left out of training and evaluation targets, and kept for Stage 8; this includes `SQ567 Flexible PV` (9 %). Table: `results/tables/02_zero_output.csv`. | Zero-output count: `UG Hall4 Flexible PV` is zero in 1,452 of 2,268 high-irradiance hours over 310 days; all other stations ≤ 9 %, optimizer stations 0.03 % in total. |

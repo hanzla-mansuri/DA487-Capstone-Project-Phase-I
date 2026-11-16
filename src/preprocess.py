@@ -89,3 +89,17 @@ def mask_irradiance_outliers(irr):
     out[out > 2000] = float("nan")
     high_flag = (out > 1500) & (out <= 2000)
     return out, high_flag
+
+
+def flag_zero_fault(power, irr):
+    """Flag rows where the station produces nothing although the sun is strong.
+
+    Rule (Stage 2 zero-output count, results/tables/02_zero_output.csv):
+    power is exactly 0 W while irradiance over the same interval is at least
+    400 W/m2. These rows are outages or faulty readings: they are left out of
+    training and evaluation targets, but kept (flagged) for Stage 8.
+
+    `power` and `irr` are Series on the same time index (interval-start label).
+    Returns a boolean Series.
+    """
+    return (power == 0) & (irr >= 400)
