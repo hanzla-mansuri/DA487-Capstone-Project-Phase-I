@@ -105,7 +105,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
 - **Viva question:** "How do you prevent data leakage, and why this split?"
 
 ### Stage 3: Baselines
-- **Status:** IN PROGRESS · **Hours:** 8 · **Week:** 4
+- **Status:** DONE · **Hours:** 8 · **Week:** 4
 - **Goal:** reference scores that every model must beat.
 - **Tasks**
   - [x] Persistence models (see §3 for the benchmark used in the skill score):
@@ -114,7 +114,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
     - Smart persistence (clear-sky-index persistence).
   - [x] Linear/ridge regression on the Stage 2 features.
   - [x] Write `src/metrics.py` (MAE, RMSE, nMAE, skill score; all-hours and daytime; pooled and per-station; block-bootstrap CIs by day).
-  - [ ] Evaluate every baseline on validation and test (observed targets only).
+  - [x] Evaluate every baseline on validation and test (observed targets only).
 - **Inputs:** `data/processed/`.
 - **Outputs:**
   - `src/models/baselines.py`, `src/metrics.py`, `tests/test_metrics.py`
@@ -420,3 +420,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-16 | Persistence baselines (`src/models/baselines.py`): last value (15 min, 1 h); same hour D−1 and mean of the same hour D−1..D−7 (day-ahead; D−1 hour 23 left out); smart persistence = last value × clear-sky(T) / clear-sky(T − step), falling back to the last value when clear-sky(T − step) < 50 W/m²; day-ahead smart persistence = (D−1 daytime mean power / D−1 daytime mean clear-sky) × clear-sky(T). All predictions capped to [0, 1.2] and set to 0 below 5° sun elevation. Quick check (validation, seen, daytime usable, power/rated): 1 h MAE last value 0.089 vs smart 0.050; 15 min 0.042 vs 0.033; day-ahead D−1 0.080, 7-day 0.098, smart 0.089. 3 baseline leakage tests added (16 tests in total). | Stage 3 persistence task; formal metrics follow in `src/metrics.py`. |
 | 2026-11-16 | Metrics (`src/metrics.py`, 6 tests in `tests/test_metrics.py`; 22 tests in total). Errors computed on power/rated; MAE/RMSE in kW use each station's rated power; nMAE = MAE / rated capacity (%); skill = 1 − RMSE_model / RMSE_benchmark on power/rated (every station counts equally), pooled and as the mean of per-station skill; NaN if the benchmark error is 0. Model and benchmark are scored on the same rows. 95 % CIs: block bootstrap over days (1,000 resamples, seed 42) using per-day error sums. Example, 1 h validation daytime, smart persistence vs last value: nMAE 4.99 % [4.57, 5.46], skill 0.364 [0.329, 0.401], mean station skill 0.349. | Done before ridge (user agreed) so every baseline is scored with the same code. Skill on power/rated chosen so large stations do not dominate. |
 | 2026-11-16 | Ridge baseline (`src/models/ridge.py`): one global model per horizon; scikit-learn pipeline = median fill → standard scaler → ridge, all fitted on train rows only (leakage test added; 23 tests in total). Fitted on seen stations, usable targets, **daytime rows only** (night target is 0 and the prediction is forced to 0). Alpha chosen on validation RMSE from 0.1 … 100,000: 15 min 0.1, 1 h 10 (both flat: RMSE changes < 0.0001), day-ahead 10,000. Validation daytime RMSE (power/rated): 15 min 0.060 (last value 0.066), 1 h 0.067 (0.116), day-ahead 0.114 (same hour D−1 0.131; MAE is worse, 0.084 vs 0.080). | Stage 3 ridge task; daytime-only fitting is a design choice. |
+| 2026-11-16 | Stage 3 done. `python -m src.evaluate_baselines` (about 3 min) writes `results/tables/03_baselines.csv` (40 rows: 3 horizons × val/test × all hours/daytime × models, 95 % CIs, mean station skill, commit `e8b8666`) and `results/figures/03_baselines_nmae.png`. Seen stations, usable targets; ridge refit on train + val for test. Test 2023, daytime, nMAE % / skill: 15 min last value 5.32 / 0, smart persistence 4.69 / 0.031, ridge 5.00 / 0.080; 1 h last value 9.01 / 0, smart 5.67 / 0.277, ridge 5.80 / 0.298; day-ahead same hour D−1 10.10 / 0, 7-day mean 10.77 / 0.008, smart 9.98 / 0.093, ridge 9.80 / 0.142. Smart persistence has the lowest nMAE at 15 min and 1 h, ridge the best skill (RMSE) at every horizon. Skill is the same for all hours and daytime, because night errors are 0 for every model. | Stage 3 "Done when" met. |
