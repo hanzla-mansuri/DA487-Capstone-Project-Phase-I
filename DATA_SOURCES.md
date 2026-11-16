@@ -16,6 +16,7 @@ Data files are **not tracked in git** (see `.gitignore`). Neither dataset ships 
 - **Known quirks to handle later:** at least one non-optimizer station has implausible power values (max ~31 MW); irradiance reaches 3608 W/m2; a few negative power values in non-optimizer files.
 
 - **Duplicate timestamps (checked in Stage 2):** 4 site files repeat timestamps, and the copies usually disagree (disagreeing timestamps / duplicated timestamps: `SQ Apartment37-48 Flexible PV` 432/432, `SQ14` 383/586, `Zone L1 (Station 1)` 5937/10087, `Zone L1(Station 2)` 1548/1566). Up to 4 copies per timestamp. The cause is not stated in the files (*unverified*); in `Zone L1 (Station 1)` the copies are close (correlation 0.98), in the others they are not. Rule in `src/preprocess.py`: identical copies are merged, disagreeing copies are set to missing.
+  - In `SQ Apartment37-48 Flexible PV` every timestamp from 2023-11-20 07:00 to 2023-12-31 17:00 is duplicated (two different rows per hour, e.g. 780 W and 0 W). All 116 values above 1.2 x rated found in Stage 1 are on these timestamps, so they are a duplicate problem, not a capacity change. The duplicate rule sets them to missing; the station loses its daytime data for this period (test year).
 
 ### Units and timezone (verified in `notebooks/01_eda.ipynb`, section 3)
 - **Power:** `power(W)`; `generation(kWh)` is the energy of the step. Hourly stations: kWh x 1000 = W exactly (where not missing). 15-min stations: summed kWh is 2.8-3.3 % above W x 0.25 h / 1000, so `power(W)` is only approximately the step mean.
