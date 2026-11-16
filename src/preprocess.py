@@ -265,3 +265,29 @@ def build_weather(freq):
         "wind_direction": resample_wind_direction(wind["Wind Direction (degree)"], freq),
     }
     return pd.DataFrame(columns)
+
+
+def rated_power_W(inventory, station):
+    """Rated power of a station in W, from the .ttl metadata.
+
+    `inventory` is results/tables/01_station_inventory.csv. All 60 stations
+    have a rated value in kW (checked in Stage 2), so no fallback is needed.
+    If a value were missing, the plan's fallback is the 99th percentile of
+    power computed on TRAIN data only.
+    """
+    row = inventory.set_index("station").loc[station]
+    if row["rated_unit"] != "KW":
+        raise ValueError(f"unexpected unit {row['rated_unit']!r} for {station}")
+    return row["rated_value"] * 1000
+
+
+def normalise_power(df, rated_W):
+    """Add `power_norm` = power / rated power (0 = nothing, 1 = nameplate).
+
+    This makes stations of different sizes comparable, so one global model
+    can learn from all of them. It uses only metadata, not data from any
+    split, so it cannot leak information from validation or test.
+    """
+    out = df.copy()
+    out["power_norm"] = out["power(W)"] / rated_W
+    return out
