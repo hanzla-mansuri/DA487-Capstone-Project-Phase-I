@@ -48,3 +48,44 @@ def to_interval_start(df, has_optimizer):
     if not has_optimizer:
         out.index = out.index - pd.Timedelta("1h")
     return out
+
+
+def mask_power_outliers(df, rated_W):
+    """Set power values outside [0, 1.2 x rated] to missing (NaN).
+
+    Rule (Stage 1, outlier section): the glitches are far outside the
+    physical range (down to -8.7 MW, up to 31.8 MW), so clipping them would
+    invent a value. We set them to missing instead; the gap is handled later.
+    Both columns of the row are set to missing, because they describe the
+    same reading.
+
+    Returns the cleaned table and a small dict of counts.
+    """
+    out = df.copy()
+    power = out["power(W)"]
+    too_low = power < 0
+    too_high = power > 1.2 * rated_W
+
+    out.loc[too_low | too_high, :] = float("nan")
+
+    counts = {
+        "negative": int(too_low.sum()),
+        "above_1.2_rated": int(too_high.sum()),
+    }
+    return out, counts
+
+
+def mask_irradiance_outliers(irr):
+    """Clean the 1-min irradiance series (W/m2).
+
+    Rule (Stage 1, outlier section; PLAN Change log 2026-11-15):
+    - above 2000 W/m2 is a sensor error, set to missing;
+    - 1500-2000 W/m2 is kept (mostly cloud-enhancement peaks near noon)
+      but flagged, so we can check later whether these rows matter.
+
+    `irr` is a Series. Returns the cleaned Series and a boolean flag Series.
+    """
+    out = irr.copy()
+    out[out > 2000] = float("nan")
+    high_flag = (out > 1500) & (out <= 2000)
+    return out, high_flag
