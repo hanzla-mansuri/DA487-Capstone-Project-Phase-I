@@ -13,6 +13,19 @@ B.Sc. Data Science capstone (DA487, 12 credits).
 - **Generalisation:** unseen-station test; Kaggle out-of-time sanity check.
 - **Deliverable:** Streamlit dashboard (in `app/`).
 
+## Results in brief
+2023 test year, daytime, stations seen in training. Skill = 1 - RMSE / RMSE of the benchmark persistence.
+
+| Horizon | Best model | nMAE (% of rated) | Skill [95 % CI] | Ridge skill | LSTM skill |
+|---|---|---|---|---|---|
+| 15 min | XGBoost | 4.61 | 0.112 [0.099, 0.124] | 0.090 | 0.108 |
+| 1 h | LightGBM | 4.95 | 0.348 [0.324, 0.370] | 0.306 | 0.332 |
+| Day-ahead | ridge | 9.72 | 0.146 [0.121, 0.167] | 0.146 | not built |
+
+Day-ahead uses no weather forecast, so it is the weakest horizon by design; the GBMs (skill 0.131-0.140)
+are not better than ridge there. Full tables with confidence intervals are in `results/tables/`, and every
+decision with its numbers is in the `PLAN.md` Change log.
+
 ## Dataset
 Primary: HKUST rooftop PV dataset (Dryad, doi:10.5061/dryad.m37pvmd99): 60 rooftop PV stations in Hong Kong, 2021-2023, plus campus weather.
 
