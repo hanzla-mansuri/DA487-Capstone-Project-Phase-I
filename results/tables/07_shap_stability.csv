@@ -1,0 +1,10 @@
+horizon,across,n_groups,mean_spearman,min_spearman,top5_overlap,commit
+15min,stations,24,0.99306,0.96371,1.00000,88e77df
+15min,seasons,4,0.97367,0.96224,1.00000,88e77df
+15min,retrained models (bootstrap + seed),5,0.98284,0.96884,0.92000,88e77df
+1h,stations,43,0.98779,0.95266,1.00000,88e77df
+1h,seasons,4,0.98118,0.96795,1.00000,88e77df
+1h,retrained models (bootstrap + seed),5,0.99004,0.98274,1.00000,88e77df
+dayahead,stations,43,0.98112,0.91794,1.00000,88e77df
+dayahead,seasons,4,0.95288,0.91201,1.00000,88e77df
+dayahead,retrained models (bootstrap + seed),5,0.96594,0.94243,0.92000,88e77df

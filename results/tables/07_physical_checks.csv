@@ -1,0 +1,18 @@
+horizon,feature,expected_direction,spearman_value_vs_shap,agrees,mean_abs_shap,commit
+15min,power_lag1,+,0.99715,True,0.13592,88e77df
+15min,irr_lag1,+,0.93734,True,0.01315,88e77df
+15min,csi_lag1,+,0.17454,True,0.00239,88e77df
+15min,clearsky_ghi,+,0.83592,True,0.00076,88e77df
+15min,sun_elevation,+,0.86864,True,0.00259,88e77df
+15min,temperature_lag1,-,0.70398,False,0.00150,88e77df
+1h,power_lag1,+,0.98896,True,0.13736,88e77df
+1h,irr_lag1,+,0.38831,True,0.00195,88e77df
+1h,csi_lag1,+,0.81288,True,0.00946,88e77df
+1h,clearsky_ghi,+,,not used by the model,0.00000,88e77df
+1h,sun_elevation,+,0.87393,True,0.01296,88e77df
+1h,temperature_lag1,-,0.23077,False,0.00147,88e77df
+dayahead,power_d1,+,0.98630,True,0.05858,88e77df
+dayahead,csi_d1_daymean,+,0.83242,True,0.00288,88e77df
+dayahead,clearsky_ghi,+,0.97188,True,0.01180,88e77df
+dayahead,sun_elevation,+,0.97832,True,0.03611,88e77df
+dayahead,temp_d1_mean,-,-0.03965,True,0.00188,88e77df

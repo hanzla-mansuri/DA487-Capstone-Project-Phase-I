@@ -1,0 +1,19 @@
+horizon,group,mean_abs_shap,share_pct,commit
+15min,calendar,0.02076,8.26228,88e77df
+15min,measured irradiance / clear-sky index,0.02426,9.65421,88e77df
+15min,other weather,0.00676,2.69004,88e77df
+15min,own power (lags),0.18960,75.44230,88e77df
+15min,solar geometry,0.00974,3.87723,88e77df
+15min,station metadata,0.00019,0.07392,88e77df
+1h,calendar,0.04745,16.71420,88e77df
+1h,measured irradiance / clear-sky index,0.02118,7.46122,88e77df
+1h,other weather,0.01390,4.89434,88e77df
+1h,own power (lags),0.17295,60.91467,88e77df
+1h,solar geometry,0.02625,9.24405,88e77df
+1h,station metadata,0.00219,0.77151,88e77df
+dayahead,calendar,0.02103,9.97741,88e77df
+dayahead,measured irradiance / clear-sky index,0.00288,1.36492,88e77df
+dayahead,other weather,0.02548,12.08732,88e77df
+dayahead,own power (lags),0.11069,52.51556,88e77df
+dayahead,solar geometry,0.04791,22.72919,88e77df
+dayahead,station metadata,0.00279,1.32562,88e77df

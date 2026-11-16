@@ -1,0 +1,85 @@
+horizon,model,feature,group,mean_abs_shap,share_pct,rank,commit
+15min,xgb,power_lag1,own power (lags),0.13592,54.08174,1,88e77df
+15min,xgb,power_mean4,own power (lags),0.02735,10.88420,2,88e77df
+15min,xgb,hour,calendar,0.01446,5.75283,3,88e77df
+15min,xgb,irr_lag1,measured irradiance / clear-sky index,0.01315,5.23318,4,88e77df
+15min,xgb,power_lag2,own power (lags),0.01035,4.11840,5,88e77df
+15min,xgb,power_lag96,own power (lags),0.00665,2.64612,6,88e77df
+15min,xgb,sun_azimuth,solar geometry,0.00640,2.54608,7,88e77df
+15min,xgb,hour_sin,calendar,0.00333,1.32390,8,88e77df
+15min,xgb,power_lag3,own power (lags),0.00314,1.24944,9,88e77df
+15min,xgb,pressure_lag1,other weather,0.00297,1.18115,10,88e77df
+15min,xgb,sun_elevation,solar geometry,0.00259,1.03019,11,88e77df
+15min,xgb,csi_lag1,measured irradiance / clear-sky index,0.00239,0.95184,12,88e77df
+15min,xgb,power_lag8,own power (lags),0.00234,0.93008,13,88e77df
+15min,xgb,csi_lag2,measured irradiance / clear-sky index,0.00230,0.91394,14,88e77df
+15min,xgb,irr_lag4,measured irradiance / clear-sky index,0.00229,0.90931,15,88e77df
+15min,xgb,power_lag4,own power (lags),0.00212,0.84360,16,88e77df
+15min,xgb,csi_mean4,measured irradiance / clear-sky index,0.00185,0.73808,17,88e77df
+15min,xgb,power_std4,own power (lags),0.00173,0.68872,18,88e77df
+15min,xgb,temperature_lag1,other weather,0.00150,0.59716,19,88e77df
+15min,xgb,irr_lag2,measured irradiance / clear-sky index,0.00134,0.53276,20,88e77df
+15min,xgb,wind_speed_lag1,other weather,0.00128,0.51083,21,88e77df
+15min,xgb,visibility_lag1,other weather,0.00101,0.40091,22,88e77df
+15min,xgb,doy_cos,calendar,0.00101,0.40020,23,88e77df
+15min,xgb,irr_mean4,measured irradiance / clear-sky index,0.00094,0.37510,24,88e77df
+15min,xgb,clearsky_ghi,solar geometry,0.00076,0.30095,25,88e77df
+15min,xgb,doy_sin,calendar,0.00072,0.28660,26,88e77df
+15min,xgb,hour_cos,calendar,0.00065,0.25888,27,88e77df
+15min,xgb,day_of_year,calendar,0.00056,0.22358,28,88e77df
+15min,xgb,tilt_deg,station metadata,0.00018,0.07274,29,88e77df
+15min,xgb,month,calendar,0.00004,0.01630,30,88e77df
+15min,xgb,multi_orientation,station metadata,0.00000,0.00118,31,88e77df
+15min,xgb,is_optimizer,station metadata,0.00000,0.00000,32,88e77df
+1h,xgb,power_lag1,own power (lags),0.13736,48.38020,1,88e77df
+1h,xgb,hour,calendar,0.04220,14.86272,2,88e77df
+1h,xgb,power_lag24,own power (lags),0.02165,7.62498,3,88e77df
+1h,xgb,sun_azimuth,solar geometry,0.01329,4.68034,4,88e77df
+1h,xgb,sun_elevation,solar geometry,0.01296,4.56371,5,88e77df
+1h,xgb,csi_lag1,measured irradiance / clear-sky index,0.00946,3.33088,6,88e77df
+1h,xgb,power_std3,own power (lags),0.00899,3.16709,7,88e77df
+1h,xgb,pressure_lag1,other weather,0.00705,2.48219,8,88e77df
+1h,xgb,irr_lag2,measured irradiance / clear-sky index,0.00328,1.15634,9,88e77df
+1h,xgb,csi_mean3,measured irradiance / clear-sky index,0.00320,1.12833,10,88e77df
+1h,xgb,wind_speed_lag1,other weather,0.00304,1.07027,11,88e77df
+1h,xgb,doy_cos,calendar,0.00276,0.97241,12,88e77df
+1h,xgb,power_lag2,own power (lags),0.00242,0.85086,13,88e77df
+1h,xgb,visibility_lag1,other weather,0.00234,0.82572,14,88e77df
+1h,xgb,csi_lag2,measured irradiance / clear-sky index,0.00204,0.71900,15,88e77df
+1h,xgb,irr_lag1,measured irradiance / clear-sky index,0.00195,0.68620,16,88e77df
+1h,xgb,power_lag3,own power (lags),0.00193,0.68009,17,88e77df
+1h,xgb,temperature_lag1,other weather,0.00147,0.51616,18,88e77df
+1h,xgb,doy_sin,calendar,0.00127,0.44665,19,88e77df
+1h,xgb,irr_mean3,measured irradiance / clear-sky index,0.00125,0.44048,20,88e77df
+1h,xgb,tilt_deg,station metadata,0.00117,0.41332,21,88e77df
+1h,xgb,is_optimizer,station metadata,0.00102,0.35819,22,88e77df
+1h,xgb,day_of_year,calendar,0.00081,0.28703,23,88e77df
+1h,xgb,power_mean3,own power (lags),0.00060,0.21146,24,88e77df
+1h,xgb,hour_cos,calendar,0.00041,0.14506,25,88e77df
+1h,xgb,month,calendar,0.00000,0.00033,26,88e77df
+1h,xgb,clearsky_ghi,solar geometry,0.00000,0.00000,27,88e77df
+1h,xgb,hour_sin,calendar,0.00000,0.00000,28,88e77df
+1h,xgb,multi_orientation,station metadata,0.00000,0.00000,29,88e77df
+dayahead,xgb,power_d1,own power (lags),0.05858,27.79035,1,88e77df
+dayahead,xgb,sun_elevation,solar geometry,0.03611,17.13024,2,88e77df
+dayahead,xgb,power_d2,own power (lags),0.02899,13.75509,3,88e77df
+dayahead,xgb,power_d1_daymean,own power (lags),0.02071,9.82610,4,88e77df
+dayahead,xgb,hour_cos,calendar,0.01468,6.96567,5,88e77df
+dayahead,xgb,clearsky_ghi,solar geometry,0.01180,5.59895,6,88e77df
+dayahead,xgb,pressure_d1_22h,other weather,0.00883,4.19072,7,88e77df
+dayahead,xgb,visibility_d1_22h,other weather,0.00844,4.00231,8,88e77df
+dayahead,xgb,temperature_d1_22h,other weather,0.00380,1.80233,9,88e77df
+dayahead,xgb,csi_d1_daymean,measured irradiance / clear-sky index,0.00288,1.36492,10,88e77df
+dayahead,xgb,day_of_year,calendar,0.00265,1.25655,11,88e77df
+dayahead,xgb,pressure_change_24h,other weather,0.00253,1.20228,12,88e77df
+dayahead,xgb,power_d7,own power (lags),0.00241,1.14401,13,88e77df
+dayahead,xgb,doy_sin,calendar,0.00224,1.06350,14,88e77df
+dayahead,xgb,temp_d1_mean,other weather,0.00188,0.88968,15,88e77df
+dayahead,xgb,is_optimizer,station metadata,0.00147,0.69625,16,88e77df
+dayahead,xgb,tilt_deg,station metadata,0.00133,0.62936,17,88e77df
+dayahead,xgb,doy_cos,calendar,0.00114,0.54242,18,88e77df
+dayahead,xgb,hour,calendar,0.00021,0.09854,19,88e77df
+dayahead,xgb,month,calendar,0.00010,0.04710,20,88e77df
+dayahead,xgb,hour_sin,calendar,0.00001,0.00364,21,88e77df
+dayahead,xgb,sun_azimuth,solar geometry,0.00000,0.00000,22,88e77df
+dayahead,xgb,multi_orientation,station metadata,0.00000,0.00000,23,88e77df

@@ -160,10 +160,14 @@ def physical_checks(horizon, X, shap):
         if feature not in X.columns:
             continue
         ok = X[feature].notna()
-        rho = spearmanr(X[feature][ok], shap[feature][ok])[0]
+        if shap[feature].abs().sum() == 0:
+            rho, agrees = np.nan, "not used by the model"
+        else:
+            rho = spearmanr(X[feature][ok], shap[feature][ok])[0]
+            agrees = str((rho > 0) == (sign == "+"))
         rows.append({"horizon": horizon, "feature": feature, "expected_direction": sign,
                      "spearman_value_vs_shap": rho,
-                     "agrees": (rho > 0) == (sign == "+"),
+                     "agrees": agrees,
                      "mean_abs_shap": shap[feature].abs().mean()})
     return rows
 
