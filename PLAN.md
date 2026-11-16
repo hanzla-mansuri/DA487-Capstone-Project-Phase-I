@@ -69,7 +69,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
 - **Goal:** model-ready datasets per horizon with no leakage.
 - **Tasks**
   - [x] Install `pvlib` and `pyarrow` (parquet) and add them to `requirements.txt`.
-  - [ ] Clean the data:
+  - [x] Clean the data:
     - Remove or clip outliers.
     - Reindex to a regular grid.
     - Fill gaps up to a documented maximum; drop longer gaps.

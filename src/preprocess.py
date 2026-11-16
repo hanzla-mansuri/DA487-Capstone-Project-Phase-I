@@ -181,3 +181,16 @@ def set_night_to_zero(df, elevation, min_elevation=5):
     }
     out.loc[night, ["generation(kWh)", "power(W)"]] = 0.0
     return out, counts
+
+
+def cut_to_study_period(df, end="2023-12-31 23:59:59"):
+    """Drop rows after the end of the study period (Dryad data: 2021-2023).
+
+    Stage 1 to-do item 3: `Zone L1 (Station 1)` runs into 2024-01-01.
+    Apply this AFTER `to_interval_start`: an hourly row labelled
+    2024-01-01 00:00 is the hour 23:00-24:00 of 2023-12-31 and must be kept.
+
+    Returns the cut table and the number of rows dropped.
+    """
+    out = df[df.index <= end]
+    return out, len(df) - len(out)
