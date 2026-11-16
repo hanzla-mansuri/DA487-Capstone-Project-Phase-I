@@ -1,0 +1,61 @@
+station,has_optimizer,role,reason,in_15min,in_1h_dayahead,days_train,days_val,days_test
+Indoor Sports Centre,True,seen,"enough data in train, validation and test",True,True,301,92,365
+LSK North,True,seen,"enough data in train, validation and test",True,True,487,92,365
+LSK South,True,seen,"enough data in train, validation and test",True,True,487,92,311
+Library,True,unseen,little or no training data (Stage 1 gate),True,True,122,88,365
+S H Ho Sports Hall,True,seen,"enough data in train, validation and test",True,True,334,92,327
+SQ Apartment1-12,True,seen,"enough data in train, validation and test",True,True,426,92,365
+SQ Apartment13-24,True,seen,"enough data in train, validation and test",True,True,426,92,365
+SQ Apartment25-36,True,seen,"enough data in train, validation and test",True,True,426,92,365
+SQ Apartment37-48,True,seen,"enough data in train, validation and test",True,True,426,92,365
+SQ Block P,True,excluded,no training data and under 180 test days (Stage 1 gate),True,True,0,0,170
+SQ Block R,True,seen,"enough data in train, validation and test",True,True,334,92,365
+SQ Block S,True,seen,"enough data in train, validation and test",True,True,334,92,365
+SQ1,True,seen,"enough data in train, validation and test",True,True,487,92,365
+SQ2,True,seen,"enough data in train, validation and test",True,True,487,92,365
+SQ3,True,seen,"enough data in train, validation and test",True,True,487,92,365
+SQ4,True,seen,"enough data in train, validation and test",True,True,487,92,365
+SQ567,True,seen,"enough data in train, validation and test",True,True,457,92,365
+Shaw Auditorium,True,excluded,no training data and under 180 test days (Stage 1 gate),True,True,0,0,149
+UG Hall2 2F,True,seen,"enough data in train, validation and test",True,True,446,92,365
+UG Hall2 RF,True,seen,"enough data in train, validation and test",True,True,446,92,365
+UG Hall3,True,seen,"enough data in train, validation and test",True,True,455,92,365
+UG Hall4,True,seen,"enough data in train, validation and test",True,True,457,92,365
+UG Hall6,True,seen,"enough data in train, validation and test",True,True,487,92,365
+UG Hall7,True,seen,"enough data in train, validation and test",True,True,487,92,365
+UG Hall8,True,unseen,little or no training data (Stage 1 gate),True,True,0,0,304
+UG Hall9,True,unseen,little or no training data (Stage 1 gate),True,True,0,0,323
+Wong Check She Research Centre,True,seen,"enough data in train, validation and test",True,True,304,92,365
+Zone A1,True,seen,"enough data in train, validation and test",True,True,457,92,365
+Zone A2,True,unseen,"capacity change; used from 2023-05-31 only, so no training data",True,True,0,0,215
+Zone A4,True,seen,"enough data in train, validation and test",True,True,455,92,365
+Zone A5,True,seen,"enough data in train, validation and test",True,True,334,92,365
+Zone A6,True,seen,"enough data in train, validation and test",True,True,334,92,365
+Zone A7,True,seen,"enough data in train, validation and test",True,True,334,92,341
+Zone D,True,seen,"enough data in train, validation and test",True,True,254,84,365
+Zone J1,True,seen,"enough data in train, validation and test",True,True,214,92,341
+Zone J2,True,seen,"enough data in train, validation and test",True,True,280,92,365
+Zone L2,True,unseen,little or no training data (Stage 1 gate),True,True,113,92,365
+CYT (Station 1),False,seen,"enough data in train, validation and test",False,True,458,90,331
+CYT (Station 2),False,seen,"enough data in train, validation and test",False,True,493,90,342
+SQ Apartment37-48 Flexible PV,False,seen,"enough data in train, validation and test",False,True,400,90,329
+SQ Block Q (Phrase 2),False,unseen,little or no training data (Stage 1 gate),False,True,0,12,342
+SQ Block Q,False,unseen,little or no training data (Stage 1 gate),False,True,0,12,342
+SQ10,False,seen,"enough data in train, validation and test",False,True,448,90,344
+SQ11,False,seen,"enough data in train, validation and test",False,True,446,90,344
+SQ12,False,seen,"enough data in train, validation and test",False,True,539,90,341
+SQ13,False,seen,"enough data in train, validation and test",False,True,536,89,344
+SQ14,False,seen,"enough data in train, validation and test",False,True,520,90,343
+SQ15,False,seen,"enough data in train, validation and test",False,True,539,90,347
+SQ16,False,seen,"enough data in train, validation and test",False,True,531,90,346
+SQ17,False,seen,"enough data in train, validation and test",False,True,511,87,344
+SQ18,False,unseen,little or no training data (Stage 1 gate),False,True,99,90,342
+SQ19,False,seen,"enough data in train, validation and test",False,True,559,80,345
+SQ567 Flexible PV,False,seen,"enough data in train, validation and test",False,True,373,90,345
+SQ8,False,seen,"enough data in train, validation and test",False,True,487,90,345
+SQ9,False,seen,"enough data in train, validation and test",False,True,486,90,345
+Tower A,False,seen,"enough data in train, validation and test",False,True,189,90,344
+UG Hall4 Flexible PV,False,excluded,zero output in 64 % of high-irradiance hours,False,True,338,78,208
+UG Hall7 Flexible PV,False,seen,"enough data in train, validation and test",False,True,373,90,346
+Zone L1 (Station 1),False,seen,"enough data in train, validation and test",False,True,520,90,347
+Zone L1(Station 2),False,seen,"enough data in train, validation and test",False,True,520,91,361
