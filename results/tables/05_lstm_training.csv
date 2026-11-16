@@ -1,0 +1,35 @@
+horizon,epoch,train_rmse,val_rmse,hidden,run,seconds
+15min,1,0.09095,0.05853,32,train (early stopping on val),668.48831
+15min,2,0.08403,0.05783,32,train (early stopping on val),668.48831
+15min,3,0.08337,0.05784,32,train (early stopping on val),668.48831
+15min,4,0.08286,0.05833,32,train (early stopping on val),668.48831
+15min,5,0.08223,0.05915,32,train (early stopping on val),668.48831
+15min,6,0.08136,0.05849,32,train (early stopping on val),668.48831
+15min,1,0.09292,0.05820,64,train (early stopping on val),1575.33374
+15min,2,0.08401,0.05801,64,train (early stopping on val),1575.33374
+15min,3,0.08330,0.05762,64,train (early stopping on val),1575.33374
+15min,4,0.08269,0.05775,64,train (early stopping on val),1575.33374
+15min,5,0.08181,0.05837,64,train (early stopping on val),1575.33374
+15min,6,0.08037,0.05807,64,train (early stopping on val),1575.33374
+15min,7,0.07870,0.05949,64,train (early stopping on val),1575.33374
+15min,1,0.08754,,64,final (train + val),421.42915
+15min,2,0.07998,,64,final (train + val),421.42915
+15min,3,0.07924,,64,final (train + val),421.42915
+1h,1,0.10229,0.06785,32,train (early stopping on val),196.59828
+1h,2,0.08084,0.06554,32,train (early stopping on val),196.59828
+1h,3,0.07926,0.06553,32,train (early stopping on val),196.59828
+1h,4,0.07818,0.06465,32,train (early stopping on val),196.59828
+1h,5,0.07733,0.06625,32,train (early stopping on val),196.59828
+1h,6,0.07636,0.06514,32,train (early stopping on val),196.59828
+1h,7,0.07518,0.06585,32,train (early stopping on val),196.59828
+1h,8,0.07417,0.06678,32,train (early stopping on val),196.59828
+1h,1,0.08597,0.06509,64,train (early stopping on val),401.36870
+1h,2,0.07928,0.06557,64,train (early stopping on val),401.36870
+1h,3,0.07739,0.06427,64,train (early stopping on val),401.36870
+1h,4,0.07531,0.06536,64,train (early stopping on val),401.36870
+1h,5,0.07216,0.06907,64,train (early stopping on val),401.36870
+1h,6,0.06862,0.07163,64,train (early stopping on val),401.36870
+1h,7,0.06479,0.07443,64,train (early stopping on val),401.36870
+1h,1,0.08306,,64,final (train + val),189.96966
+1h,2,0.07650,,64,final (train + val),189.96966
+1h,3,0.07492,,64,final (train + val),189.96966

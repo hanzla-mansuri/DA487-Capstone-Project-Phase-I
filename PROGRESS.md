@@ -15,7 +15,7 @@ Rules for this run (user reply 2026-11-16: "autonomous, push is fine, skip licen
 | # | Milestone (PLAN stage) | Status |
 |---|---|---|
 | 1 | Stage 4: tune 15 min + day-ahead, final refit, test evaluation, saved models (+ irradiance sensor fix) | DONE |
-| 2 | Stage 5: LSTM (15 min, 1 h) | IN PROGRESS |
+| 2 | Stage 5: LSTM (15 min, 1 h) | DONE |
 | 3 | Stage 6: efficiency benchmark, ONNX, int8 quantization | NOT STARTED |
 | 4 | Stage 7: SHAP explainability and stability | NOT STARTED |
 | 5 | Stage 8: residual-based fault flagging | NOT STARTED |
@@ -28,8 +28,8 @@ licence check in `DATA_SOURCES.md`, final tag `v1.0`.
 
 ## Checkpoint
 
-- **Done:** milestone 1. Final GBMs are in `models/`, results in `results/tables/04_*`.
-- **Now:** milestone 2, `python -m src.train_lstm` (about 1 hour on this laptop).
+- **Done:** milestones 1-2. Final GBMs and LSTMs are in `models/`, results in `results/tables/04_*`, `05_*`.
+- **Now:** milestones 3-6 run as one chain (faults, benchmark, explain, generalise).
 - **Then, in order (all scripts are written; run one at a time):**
   `python -m src.benchmark` -> `python -m src.explain` -> `python -m src.faults` ->
   `python -m src.generalise` -> `python -m app.build_demo` -> dashboard smoke test.
