@@ -240,12 +240,18 @@ def build_weather(freq):
 
     Irradiance outliers are cleaned first (`mask_irradiance_outliers`), and
     the 1500-2000 W/m2 flag is kept as the share of flagged minutes.
-    Rainfall exists for 2022-2023 only, so it is missing in 2021.
+    Rainfall is NOT used: it exists for 2022-2023 only (PLAN Change log
+    2026-11-16). `resample_weather(..., how="sum")` would be used for it.
     """
     irr = read_weather("irradiance")["Irradiance (W/m2)"]
     irr, high_flag = mask_irradiance_outliers(irr)
 
     wind = read_weather("wind")
+    # wind speed above 20 m/s: isolated 1-min spikes (up to 91.9 m/s), almost
+    # all in 2023-01..06; the 99.99th percentile is 18.9 m/s. Set to missing,
+    # together with the direction of the same minute.
+    spike = wind["Wind Speed (m/s)"] > 20
+    wind.loc[spike, :] = float("nan")
 
     columns = {
         "irradiance": resample_weather(irr, freq),
@@ -256,6 +262,5 @@ def build_weather(freq):
         "visibility": resample_weather(read_weather("visibility")["Vis (km)"], freq),
         "wind_speed": resample_weather(wind["Wind Speed (m/s)"], freq),
         "wind_direction": resample_wind_direction(wind["Wind Direction (degree)"], freq),
-        "rainfall": resample_weather(read_weather("rainfall")["Rainfall(mm)"], freq, how="sum"),
     }
     return pd.DataFrame(columns)

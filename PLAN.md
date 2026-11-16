@@ -76,9 +76,9 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
     - **Causal fill only for features** (forward-fill; no interpolation that uses future values).
     - **Keep an `is_filled` mask per row. Targets that were filled are excluded from all evaluation metrics.**
     - Set night to 0 using sun elevation.
-  - [ ] Resample (respecting the timestamp convention from Stage 1):
+  - [x] Resample (respecting the timestamp convention from Stage 1):
     - Weather from 1-min to 15-min and hourly means.
-    - Inverter data from 5-min to 15-min where needed.
+    - Inverter data from 5-min to 15-min where needed. *Deferred to Stage 8 (inverter-level comparison, a cut-list item): the site-level files already give 15-min power for all optimizer stations.*
   - [ ] Normalise power by rated capacity, so stations are comparable. Any fallback capacity (99th percentile) and any scaler is **computed on train only**.
   - [ ] Build features:
     - Lags and rolling statistics of power and weather (trailing windows only).
@@ -403,3 +403,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-16 | Maximum gap filled (Stage 2 cleaning): 4 steps (1 h) for 15-min stations, 1 step for hourly stations; forward fill only, longer gaps stay missing, `is_filled` mask kept (`src/preprocess.py::reindex_and_fill`). On all stations: 2,554 values filled, 35,889 stay missing. | Stage 1: most gaps are whole lost daytimes, which should not be filled; a 1-h limit only bridges short dropouts. |
 | 2026-11-16 | Night-to-zero rule (Stage 2 cleaning): power and energy set to 0 when sun elevation at the interval middle is below 5° (pvlib, station lat/lon, UTC+8; `src/preprocess.py::set_night_to_zero`). Removes 0.11 % (optimizer) and 0.27 % (hourly) of energy per station at the median, max 0.53 % (`SQ567 Flexible PV`); 81,775 non-zero rows set to 0, 12,827 of them with the sun below the horizon; 1,185 missing night rows become a known 0. | Stage 1 to-do item 16; the removed dawn/dusk values are small (≤ 5.4 % of rated between 0° and 5°). |
 | 2026-11-16 | Weather resampling (Stage 2): 1-min weather averaged to 15-min and hourly steps, labelled at the interval start, kept only with ≥ 80 % of minutes (`src/preprocess.py::build_weather`). Rainfall is summed; wind direction uses a sine/cosine mean; irradiance outliers are masked first and the 1500-2000 W/m² flag becomes `irr_high_share`. Missing: 0.57-0.62 % per variable; rainfall 33.9 % (no 2021 data) and 0.86 % in 2022-2023. | Stage 1 to-do item 10. |
+| 2026-11-16 | Weather cleaning: wind speed above 20 m/s set to missing (141 isolated 1-min spikes up to 91.9 m/s, almost all 2023-01..06; 99.99th percentile 18.9 m/s). Rainfall dropped as a feature (no 2021 data). Inverter 5-min → 15-min resampling deferred to Stage 8. | Weather checks after resampling; Stage 1 to-do item 13. |
