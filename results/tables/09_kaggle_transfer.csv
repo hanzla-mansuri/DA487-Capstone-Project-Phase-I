@@ -1,0 +1,5 @@
+data,model,benchmark,n_rows,n_days,mae_kW,rmse_kW,nmae_pct,rmse_norm,skill,mae_kW_low,mae_kW_high,rmse_kW_low,rmse_kW_high,nmae_pct_low,nmae_pct_high,rmse_norm_low,rmse_norm_high,skill_low,skill_high,capacity_proxy_kW,commit
+HKUST test 2023 (seen stations),reduced lgbm,last_value,168250,365,1.60835,2.97180,4.95606,0.07912,0.34490,1.53162,1.68733,2.82505,3.13063,4.72269,5.19625,0.07512,0.08338,0.31999,0.36888,,655241d
+HKUST test 2023 (seen stations),smart_persistence,last_value,168250,365,1.83801,3.25913,5.67153,0.08735,0.27673,1.75534,1.92287,3.10377,3.42106,5.41739,5.93718,0.08341,0.09147,0.25745,0.29675,,655241d
+Kaggle rooftop 2024-2025 (zero-shot),reduced lgbm,last_value,5561,509,1.60942,2.30555,6.09353,0.08729,0.32700,1.55609,1.66473,2.22426,2.38487,5.89164,6.30295,0.08421,0.09030,0.30948,0.34704,26.41187,655241d
+Kaggle rooftop 2024-2025 (zero-shot),smart_persistence,last_value,5561,509,1.66736,2.39882,6.31293,0.09082,0.29977,1.60733,1.72903,2.31380,2.48789,6.08564,6.54642,0.08760,0.09420,0.28323,0.31763,26.41187,655241d
