@@ -1,0 +1,13 @@
+model: xgb
+horizon: dayahead
+params:
+  learning_rate: 0.05
+  max_depth: 4
+  min_child_weight: 20
+  subsample: 0.8
+  colsample_bytree: 0.6
+  reg_lambda: 0.1
+n_trees: 65
+val_rmse: 0.11696848659460152
+trial: 13
+selected_by: lowest validation RMSE (seen, usable, daytime); early stopping on validation

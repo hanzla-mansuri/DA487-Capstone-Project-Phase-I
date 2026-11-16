@@ -1,0 +1,13 @@
+model: lgbm
+horizon: 15min
+params:
+  learning_rate: 0.05
+  num_leaves: 127
+  min_child_samples: 200
+  subsample: 0.8
+  colsample_bytree: 1.0
+  reg_lambda: 0.0
+n_trees: 170
+val_rmse: 0.05641878205403931
+trial: 16
+selected_by: lowest validation RMSE (seen, usable, daytime); early stopping on validation

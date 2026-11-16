@@ -1,0 +1,13 @@
+model: lgbm
+horizon: dayahead
+params:
+  learning_rate: 0.12
+  num_leaves: 15
+  min_child_samples: 200
+  subsample: 1.0
+  colsample_bytree: 1.0
+  reg_lambda: 1.0
+n_trees: 32
+val_rmse: 0.11707332895150993
+trial: 18
+selected_by: lowest validation RMSE (seen, usable, daytime); early stopping on validation

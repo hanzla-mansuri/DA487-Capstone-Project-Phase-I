@@ -1,0 +1,13 @@
+model: xgb
+horizon: 15min
+params:
+  learning_rate: 0.02
+  max_depth: 8
+  min_child_weight: 1
+  subsample: 0.6
+  colsample_bytree: 0.8
+  reg_lambda: 10.0
+n_trees: 371
+val_rmse: 0.05627704415514251
+trial: 2
+selected_by: lowest validation RMSE (seen, usable, daytime); early stopping on validation

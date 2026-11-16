@@ -39,3 +39,6 @@ venv/
 .DS_Store
 Thumbs.db
 *:Zone.Identifier
+
+# Dashboard demo bundle (rebuilt by `python -m app.build_demo`)
+app/demo/
