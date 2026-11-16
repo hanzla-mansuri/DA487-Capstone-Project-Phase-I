@@ -79,7 +79,7 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
   - [x] Resample (respecting the timestamp convention from Stage 1):
     - Weather from 1-min to 15-min and hourly means.
     - Inverter data from 5-min to 15-min where needed. *Deferred to Stage 8 (inverter-level comparison, a cut-list item): the site-level files already give 15-min power for all optimizer stations.*
-  - [ ] Normalise power by rated capacity, so stations are comparable. Any fallback capacity (99th percentile) and any scaler is **computed on train only**.
+  - [x] Normalise power by rated capacity, so stations are comparable. Any fallback capacity (99th percentile) and any scaler is **computed on train only**.
   - [ ] Build features:
     - Lags and rolling statistics of power and weather (trailing windows only).
     - Calendar features.
@@ -88,8 +88,8 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
     - **All features use only information available at forecast time.**
   - [ ] Build targets for each horizon (t+15 min, t+1 h, day-ahead per §3).
   - [ ] Choose the station sets (as confirmed by the Stage 1 gate):
-    - 15-min horizon: the optimizer stations (plus inverter data): 37 have the resolution, 31 are seen in train, validation and test (Stage 1 gate, `results/tables/01_station_sets.csv`).
-    - 1-h and day-ahead: all stations with the needed resolution: 60, of which 51 are seen in train, validation and test. **`UG Hall4 Flexible PV` is dropped** (zero output in 64 % of high-irradiance hours), leaving 59, of which 50 are seen.
+    - 15-min horizon: the optimizer stations (plus inverter data): 37 have the resolution, 31 are seen in train, validation and test (Stage 1 gate, `results/tables/01_station_sets.csv`). **`Zone A2` is used from 2023-05-31 only** (capacity change), so it becomes test-only: 30 seen.
+    - 1-h and day-ahead: all stations with the needed resolution: 60, of which 51 are seen in train, validation and test. **`UG Hall4 Flexible PV` is dropped** (zero output in 64 % of high-irradiance hours), leaving 59, of which 50 are seen; with `Zone A2` test-only, 49 are seen.
     - Stations with little or no training data are the first candidates for the unseen-station set.
   - [ ] Chronological split: train = start-2022-09-30, validation = 2022-10-01-2022-12-31, test = 2023 (full year). Confirm in EDA that each season is in train.
   - [ ] Unseen-station split: hold out ~6 stations (fixed seed; listed in the split table) plus the stations that start in 2023. Also define **station-grouped K-fold** folds for the GBM generalisation estimate (Stage 9). Sets are defined per horizon set.
@@ -405,3 +405,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-16 | Weather resampling (Stage 2): 1-min weather averaged to 15-min and hourly steps, labelled at the interval start, kept only with ≥ 80 % of minutes (`src/preprocess.py::build_weather`). Rainfall is summed; wind direction uses a sine/cosine mean; irradiance outliers are masked first and the 1500-2000 W/m² flag becomes `irr_high_share`. Missing: 0.57-0.62 % per variable; rainfall 33.9 % (no 2021 data) and 0.86 % in 2022-2023. | Stage 1 to-do item 10. |
 | 2026-11-16 | Weather cleaning: wind speed above 20 m/s set to missing (141 isolated 1-min spikes up to 91.9 m/s, almost all 2023-01..06; 99.99th percentile 18.9 m/s). Rainfall dropped as a feature (no 2021 data). Inverter 5-min → 15-min resampling deferred to Stage 8. | Weather checks after resampling; Stage 1 to-do item 13. |
 | 2026-11-16 | Humidity dropped as a feature. | Faulty sensor periods: 2021-01..03 (stuck at about 10-15 %, 0 % around noon) and 2023-05-17..24 in the test year (jumps between about 0 and 100 %); a threshold rule cannot remove the stuck 100 % values, and masking by hand-picked dates is hard to defend. |
+| 2026-11-16 | Power normalised by the `.ttl` rated power (all 60 stations have one in kW, so no fallback is needed; `src/preprocess.py::normalise_power`). `Zone A2` is used from its `.ttl` connection date 2023-05-31 only (`cut_before_capacity_change`); it moves to the unseen-station set as test-only (seen stations: 15 min 31 → 30, 1 h/day-ahead 50 → 49). | `Zone A2` output is about 0.25 x rated until 2023-05 and about 0.75 x rated afterwards, so the 249.5 kW rating fits only the expanded system; the earlier capacity is unknown. |

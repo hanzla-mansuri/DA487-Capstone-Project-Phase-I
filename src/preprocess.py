@@ -291,3 +291,22 @@ def normalise_power(df, rated_W):
     out = df.copy()
     out["power_norm"] = out["power(W)"] / rated_W
     return out
+
+
+# Stations whose capacity changed during the data period. Only data from the
+# .ttl connection date onward matches the rated power, so earlier rows are
+# dropped (PLAN Change log 2026-11-16).
+# Zone A2: output about 0.25 x rated until 2023-05, then about 0.75 x rated;
+# the .ttl connection date is 2023-05-31 (rated 249.5 kW).
+USE_FROM = {"Zone A2": "2023-05-31"}
+
+
+def cut_before_capacity_change(df, station):
+    """Drop rows before the date in `USE_FROM` (only for the stations listed).
+
+    Returns the cut table and the number of rows dropped.
+    """
+    if station not in USE_FROM:
+        return df, 0
+    out = df[df.index >= USE_FROM[station]]
+    return out, len(df) - len(out)
