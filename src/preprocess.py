@@ -1,9 +1,12 @@
-"""Cleaning steps for the site-level power files (Stage 2).
+"""Cleaning and resampling steps for the power and weather data (Stage 2).
 
 Each step is a small function so it can be explained and tested on its own.
 """
+import numpy as np
 import pandas as pd
 import pvlib
+
+from src.data_io import read_weather
 
 
 def resolve_duplicates(df):
@@ -194,3 +197,65 @@ def cut_to_study_period(df, end="2023-12-31 23:59:59"):
     """
     out = df[df.index <= end]
     return out, len(df) - len(out)
+
+
+def resample_weather(series, freq, how="mean", min_share=0.8):
+    """Resample a 1-min weather series to `freq` steps (e.g. "15min", "1h").
+
+    Rules (Stage 1 to-do item 10):
+    - labelled at the interval START, the same as the power data
+      (row t = minutes [t, t + freq));
+    - an interval is kept only if at least `min_share` (80 %) of its
+      minutes are present, otherwise it is missing;
+    - `how` is "mean" for most variables and "sum" for rainfall
+      (rainfall is an amount per minute, so the interval total is the sum).
+    """
+    groups = series.resample(freq, label="left", closed="left")
+    if how == "sum":
+        out = groups.sum()
+    else:
+        out = groups.mean()
+
+    minutes_needed = pd.Timedelta(freq) / pd.Timedelta("1min")
+    enough = groups.count() >= min_share * minutes_needed
+    return out.where(enough)
+
+
+def resample_wind_direction(degrees, freq, min_share=0.8):
+    """Average wind direction (degrees) over `freq` steps.
+
+    Directions are angles, so a plain mean is wrong (the mean of 350 and 10
+    would be 180). We average the sine and cosine and turn them back into
+    an angle between 0 and 360.
+    """
+    radians = np.deg2rad(degrees)
+    sin_mean = resample_weather(np.sin(radians), freq, "mean", min_share)
+    cos_mean = resample_weather(np.cos(radians), freq, "mean", min_share)
+    angle = np.rad2deg(np.arctan2(sin_mean, cos_mean))
+    return angle % 360
+
+
+def build_weather(freq):
+    """All weather variables at `freq` steps, one column each.
+
+    Irradiance outliers are cleaned first (`mask_irradiance_outliers`), and
+    the 1500-2000 W/m2 flag is kept as the share of flagged minutes.
+    Rainfall exists for 2022-2023 only, so it is missing in 2021.
+    """
+    irr = read_weather("irradiance")["Irradiance (W/m2)"]
+    irr, high_flag = mask_irradiance_outliers(irr)
+
+    wind = read_weather("wind")
+
+    columns = {
+        "irradiance": resample_weather(irr, freq),
+        "irr_high_share": resample_weather(high_flag.astype(float), freq),
+        "temperature": resample_weather(read_weather("temperature")["Temp (Degree Celsius)"], freq),
+        "humidity": resample_weather(read_weather("humidity")["RH (%)"], freq),
+        "pressure": resample_weather(read_weather("pressure")["SLP (hPa)"], freq),
+        "visibility": resample_weather(read_weather("visibility")["Vis (km)"], freq),
+        "wind_speed": resample_weather(wind["Wind Speed (m/s)"], freq),
+        "wind_direction": resample_wind_direction(wind["Wind Direction (degree)"], freq),
+        "rainfall": resample_weather(read_weather("rainfall")["Rainfall(mm)"], freq, how="sum"),
+    }
+    return pd.DataFrame(columns)
