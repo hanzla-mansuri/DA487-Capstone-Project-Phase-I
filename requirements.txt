@@ -12,3 +12,4 @@ ipykernel==7.4.0
 nbconvert==7.17.2
 pvlib==0.16.1
 pyarrow==26.0.1
+pytest==9.2.0

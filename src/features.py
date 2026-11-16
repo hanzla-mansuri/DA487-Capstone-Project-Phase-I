@@ -24,7 +24,7 @@ def calendar_features(index):
     tree models can use the plain numbers).
     """
     hour = index.hour + index.minute / 60
-    doy = index.dayofyear
+    doy = index.day_of_year
 
     out = pd.DataFrame(index=index)
     out["hour"] = hour
