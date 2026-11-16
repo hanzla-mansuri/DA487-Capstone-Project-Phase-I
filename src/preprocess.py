@@ -3,6 +3,7 @@
 Each step is a small function so it can be explained and tested on its own.
 """
 import pandas as pd
+import pvlib
 
 
 def resolve_duplicates(df):
@@ -144,4 +145,39 @@ def reindex_and_fill(df, freq, max_steps):
         "filled": int(out["is_filled"].sum()),
         "missing_after_fill": int(out["power(W)"].isna().sum()),
     }
+    return out, counts
+
+
+def sun_elevation(index, freq, lat, lon):
+    """Sun elevation (degrees) at the MIDDLE of each interval.
+
+    Rows are labelled with the interval start, so the middle is t + freq/2.
+    Timestamps are local Hong Kong time (UTC+8, no daylight saving; Stage 1).
+    """
+    middle = index + pd.Timedelta(freq) / 2
+    middle = middle.tz_localize("Etc/GMT-8")  # "GMT-8" means UTC+8 in this naming
+    pos = pvlib.solarposition.get_solarposition(middle, lat, lon)
+    return pd.Series(pos["elevation"].to_numpy(), index=index)
+
+
+def set_night_to_zero(df, elevation, min_elevation=5):
+    """Set power and energy to 0 when the sun is below `min_elevation` degrees.
+
+    Rule (Stage 1 to-do item 16; PLAN Change log 2026-11-16): night values are
+    already zero almost everywhere (Stage 1), so this mainly removes the rare
+    non-zero night readings and fills missing night rows with a known 0.
+
+    Returns the cleaned table and a small dict of counts.
+    """
+    out = df.copy()
+    night = elevation < min_elevation
+    power = out["power(W)"]
+
+    counts = {
+        "night_rows": int(night.sum()),
+        "night_nonzero_set_to_0": int((night & (power > 0)).sum()),
+        "night_missing_set_to_0": int((night & power.isna()).sum()),
+        "energy_removed_share_%": round(100 * power[night].sum() / power.sum(), 3),
+    }
+    out.loc[night, ["generation(kWh)", "power(W)"]] = 0.0
     return out, counts
