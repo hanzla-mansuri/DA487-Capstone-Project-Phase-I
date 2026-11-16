@@ -10,10 +10,13 @@ Horizon sets:
 - 15 min: the 37 optimizer stations (15-min data);
 - 1 h and day-ahead: all 60 stations (optimizer stations averaged to hourly).
 """
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
-STAGE1_TABLE = "results/tables/01_station_sets.csv"
+REPO = Path(__file__).resolve().parents[1]
+STAGE1_TABLE = REPO / "results" / "tables" / "01_station_sets.csv"
 SEED = 42
 N_HOLDOUT = 6
 N_FOLDS = 5

@@ -19,9 +19,10 @@ import pandas as pd
 
 from src import data_io, features, preprocess, splits
 
-INVENTORY = "results/tables/01_station_inventory.csv"
-OUT_DIR = Path("data/processed")
-SUMMARY = Path("results/tables/02_split_summary.csv")
+REPO = Path(__file__).resolve().parents[1]
+INVENTORY = REPO / "results" / "tables" / "01_station_inventory.csv"
+OUT_DIR = REPO / "data" / "processed"
+SUMMARY = REPO / "results" / "tables" / "02_split_summary.csv"
 
 BUILDERS = {
     "15min": features.features_15min,
