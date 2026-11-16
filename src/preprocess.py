@@ -103,3 +103,45 @@ def flag_zero_fault(power, irr):
     Returns a boolean Series.
     """
     return (power == 0) & (irr >= 400)
+
+
+def reindex_and_fill(df, freq, max_steps):
+    """Put a station on a regular time grid and fill only short gaps.
+
+    Rules (Stage 2; PLAN Change log 2026-11-16):
+    - grid: every `freq` step from the first to the last timestamp;
+    - a gap (run of missing power) of at most `max_steps` steps is filled
+      by carrying the last known value forward (causal: never uses a
+      future value);
+    - longer gaps stay missing (Stage 1: they are mostly whole lost days);
+    - `is_filled` marks filled rows. Filled values may be used as features,
+      but filled targets are never used for evaluation.
+
+    Returns the gridded table and a small dict of counts.
+    """
+    grid = pd.date_range(df.index.min(), df.index.max(), freq=freq)
+    off_grid = int((~df.index.isin(grid)).sum())
+    out = df.reindex(grid)
+
+    # length of each run of missing values
+    missing = out["power(W)"].isna()
+    run_id = (missing != missing.shift()).cumsum()
+    run_len = missing.groupby(run_id).transform("size")
+    short_gap = missing & (run_len <= max_steps)
+
+    # forward fill, then keep the filled values only inside short gaps
+    filled = out.ffill()
+    out.loc[short_gap, :] = filled.loc[short_gap, :]
+
+    # a gap at the very start has nothing before it, so it stays missing
+    out["is_filled"] = short_gap & out["power(W)"].notna()
+
+    counts = {
+        "rows_in": len(df),
+        "off_grid_rows_dropped": off_grid,
+        "grid_rows": len(out),
+        "missing_before_fill": int(missing.sum()),
+        "filled": int(out["is_filled"].sum()),
+        "missing_after_fill": int(out["power(W)"].isna().sum()),
+    }
+    return out, counts
