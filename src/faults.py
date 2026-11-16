@@ -2,6 +2,7 @@
 
     python -m src.faults --build     # build the nowcast table (once, ~2 min)
     python -m src.faults             # train, set thresholds, inject faults, evaluate
+    python -m src.faults --detect-only   # reuse the saved daily sums (fast)
 
 Design (PLAN Stage 8, "Key design point"):
 A forecast that uses the station's own lagged power adapts to a lasting fault
@@ -16,6 +17,11 @@ Two detectors, built the same way so the comparison is fair:
 For each: divide by the station's normal level, subtract 1 (0 = normal,
 -0.2 = 20 % below normal), take a 3-day rolling mean, and flag a day when it
 is below a threshold.
+
+Common-mode removal: the median score of all stations on the same day is
+subtracted. All stations share one weather station, so an error of the
+irradiance sensor (or of the expected-power model on unusual weather) moves
+every station together, while a fault moves one station only.
 
 Calibration (normal level and threshold) uses the train + validation period,
 which covers every season. So that the model's expected power is not
@@ -152,16 +158,34 @@ def station_normal(daily):
     return normal
 
 
-def rolling_score(days, ratio, normal):
+def rolling_score(days, ratio, normal, fleet=None):
     """Score of one station: ratio / normal - 1, as a 3-day rolling mean on
-    the calendar (a day without data is skipped; at least 2 days needed)."""
+    the calendar (a day without data is skipped; at least 2 days needed).
+    `fleet` (the all-station median score per day) is subtracted if given."""
     score = pd.Series((ratio / normal - 1).to_numpy(), index=pd.DatetimeIndex(days))
     full = score.asfreq("D")
     rolled = full.rolling(ROLL_DAYS, min_periods=2).mean()
+    if fleet is not None:
+        rolled = rolled - fleet.reindex(rolled.index)
     return rolled
 
 
-def all_scores(daily, normal, split):
+def fleet_median(daily, normal):
+    """Median rolling score of all stations per day and detector (before
+    common-mode removal). One fault in one station hardly moves it."""
+    out = []
+    for station, d in daily.groupby("station"):
+        if station not in normal.index:
+            continue
+        frame = pd.DataFrame({
+            det: rolling_score(d["day"], raw_ratio(d, det), normal.loc[station, det])
+            for det in DETECTORS})
+        out.append(frame)
+    together = pd.concat(out)
+    return together.groupby(level=0).median()
+
+
+def all_scores(daily, normal, split, fleet):
     """Rolling score of every station and detector (no injected fault) on
     the test year (`split` = "test") or the calibration period (anything else)."""
     part = daily[(daily["split"] == "test") == (split == "test")]
@@ -170,7 +194,7 @@ def all_scores(daily, normal, split):
         if station not in normal.index:
             continue
         frame = pd.DataFrame({
-            det: rolling_score(d["day"], raw_ratio(d, det), normal.loc[station, det])
+            det: rolling_score(d["day"], raw_ratio(d, det), normal.loc[station, det], fleet[det])
             for det in DETECTORS})
         frame["station"] = station
         out.append(frame)
@@ -248,7 +272,7 @@ def pick_starts(daily_test, rng):
     return starts
 
 
-def run_injections(daily, normal, thresholds):
+def run_injections(daily, normal, thresholds, fleet):
     """Inject every fault at every start into every station; record whether
     and when each detector flags it.
 
@@ -269,13 +293,14 @@ def run_injections(daily, normal, thresholds):
                     end = start + pd.Timedelta(days=duration + ROLL_DAYS - 2)
                     for det in DETECTORS:
                         score = rolling_score(d["day"], raw_ratio(d, det, factor),
-                                              normal.loc[station, det])
+                                              normal.loc[station, det], fleet[det])
                         window = score[start:end]
                         flagged = window[window < thresholds[det]]
                         events.append({
                             "station": station, "start": start, "kind": kind,
                             "severity": severity, "duration_days": duration,
                             "detector": det, "detected": len(flagged) > 0,
+                            "lowest_score": window.min(),
                             "delay_days": (flagged.index[0] - start).days if len(flagged) else np.nan,
                         })
     return pd.DataFrame(events)
@@ -307,12 +332,16 @@ def false_alarms(test_scores, thresholds):
         all_runs.append(runs)
         valid = test_scores[det].notna()
         station_months = valid.sum() / 30.4
+        flagged = test_scores[det] < thresholds[det]
+        per_station = 100 * flagged.groupby(test_scores["station"]).sum() / valid.groupby(test_scores["station"]).sum()
         rows.append({
             "detector": det, "threshold": thresholds[det],
             "stations": test_scores["station"].nunique(),
             "scored_days": int(valid.sum()),
             "flagged_days": int((test_scores[det] < thresholds[det]).sum()),
             "flagged_day_share_pct": 100 * (test_scores[det] < thresholds[det]).sum() / valid.sum(),
+            "median_station_flagged_day_share_pct": per_station.median(),
+            "stations_with_over_10pct_flagged": int((per_station > 10).sum()),
             "episodes": len(runs),
             "episodes_per_station_month": len(runs) / station_months,
         })
@@ -343,9 +372,28 @@ def summarise(events, alarms):
     return pd.DataFrame(rows)
 
 
+def threshold_sensitivity(events, val_scores, test_scores):
+    """How the choice of N_SIGMA trades recall against flags on unmodified data."""
+    rows = []
+    for det in DETECTORS:
+        sd = robust_sd(val_scores[det])
+        mine = events[events["detector"] == det]
+        for n_sigma in [2, 3, 4, 5]:
+            threshold = -n_sigma * sd
+            row = {"detector": det, "n_sigma": n_sigma, "threshold": threshold,
+                   "test_flagged_day_share_pct": 100 * (test_scores[det] < threshold).sum()
+                                                 / test_scores[det].notna().sum()}
+            for severity in [0.1, 0.2, 0.3]:
+                part = mine[(mine["kind"] == "drop") & (mine["severity"] == severity)
+                            & (mine["duration_days"] == 7)]
+                row[f"recall_drop_{int(severity * 100)}pct_7d"] = (part["lowest_score"] < threshold).mean()
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
 # ------------------------------------------------------------ lag example
 
-def lag_example(nowcast, expected, normal, thresholds):
+def lag_example(daily, normal, thresholds, fleet):
     """One fault (-30 % for 14 days) seen by three residuals:
     the nowcast detector, the PR baseline, and the Stage 4 1-h forecast
     whose inputs include the station's own (now also reduced) lagged power.
@@ -353,13 +401,12 @@ def lag_example(nowcast, expected, normal, thresholds):
     station, start, duration, severity = "LSK North", pd.Timestamp("2023-07-10"), 14, 0.30
     end = start + pd.Timedelta(days=duration)
 
-    is_station = nowcast["station"] == station
-    mine = nowcast[is_station]
-    d = daily_table(mine, expected[is_station])
-    d = d[d["split"] == "test"]
+    d = daily[(daily["station"] == station) & (daily["split"] == "test")]
     factor = fault_factor(d["day"], start, duration, "drop", severity)
-    lines = {det: rolling_score(d["day"], raw_ratio(d, det, factor), normal.loc[station, det])
+    lines = {det: rolling_score(d["day"], raw_ratio(d, det, factor), normal.loc[station, det], fleet[det])
              for det in DETECTORS}
+    nowcast = pd.read_parquet(NOWCAST, columns=["irradiance", "station"])
+    mine = nowcast[nowcast["station"] == station]
 
     # the 1-h forecast with faulty power: the target AND the own-power inputs drop
     table = evaluate.load_table("1h")
@@ -461,7 +508,8 @@ def plot_score_spread(val_scores, test_scores, thresholds):
 
 # ------------------------------------------------------------ main
 
-def main():
+def build_daily():
+    """Step 1: fit the expected-power model and save the daily sums."""
     table = pd.read_parquet(NOWCAST)
 
     # station identity as a category: the model may learn each station's own
@@ -486,15 +534,25 @@ def main():
 
     seen = table["role"] == "seen"
     daily = daily_table(table[seen], expected[seen])
+    daily.to_parquet(DAILY)
+    print(f"saved {DAILY}")
+
+
+def main():
+    """Step 2: detectors, thresholds, synthetic faults (reads the daily sums)."""
+    daily = pd.read_parquet(DAILY)
     normal = station_normal(daily)
-    val_scores = all_scores(daily, normal, "calibration")
-    test_scores = all_scores(daily, normal, "test")
+    fleet = fleet_median(daily, normal)
+    val_scores = all_scores(daily, normal, "calibration", fleet)
+    test_scores = all_scores(daily, normal, "test", fleet)
     thresholds = thresholds_from(val_scores)
     print(f"   thresholds (-{N_SIGMA} robust sd of calibration scores): {thresholds}")
 
     alarms, runs = false_alarms(test_scores, thresholds)
-    events = run_injections(daily, normal, thresholds)
+    events = run_injections(daily, normal, thresholds, fleet)
     summary = summarise(events, alarms)
+    sensitivity = threshold_sensitivity(events, val_scores, test_scores)
+    sensitivity.to_csv(evaluate.TABLES / "08_threshold_sensitivity.csv", index=False, float_format="%.4f")
 
     commit = evaluate.git_commit()
     for frame in [summary, alarms]:
@@ -512,14 +570,15 @@ def main():
     real.to_csv(evaluate.TABLES / "08_flagged_periods.csv", index=False, float_format="%.4f")
 
     normal.to_csv(evaluate.TABLES / "08_station_normal.csv", float_format="%.4f")
-    daily.to_parquet(DAILY)      # daily sums, read by the dashboard bundle
+    fleet.rename_axis("day").to_csv(evaluate.TABLES / "08_fleet_median.csv", float_format="%.4f")
 
     plot_recall(summary)
     plot_score_spread(val_scores, test_scores, thresholds)
-    example = lag_example(table, expected, normal, thresholds)
+    example = lag_example(daily, normal, thresholds, fleet)
     pd.DataFrame([example]).to_csv(evaluate.TABLES / "08_lag_example.csv", index=False, float_format="%.4f")
 
     print(alarms.to_string(index=False))
+    print(sensitivity.round(3).to_string(index=False))
     print(summary.to_string(index=False))
     print(example)
 
@@ -527,7 +586,11 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Stage 8: fault flagging.")
     parser.add_argument("--build", action="store_true", help="build the nowcast table first")
+    parser.add_argument("--detect-only", action="store_true",
+                        help="skip the model fit and reuse the saved daily sums")
     args = parser.parse_args()
     if args.build:
         build_nowcast_table()
+    if not args.detect_only:
+        build_daily()
     main()

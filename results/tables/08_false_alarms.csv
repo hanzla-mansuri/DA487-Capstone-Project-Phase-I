@@ -1,0 +1,3 @@
+detector,threshold,stations,scored_days,flagged_days,flagged_day_share_pct,median_station_flagged_day_share_pct,stations_with_over_10pct_flagged,episodes,episodes_per_station_month,commit
+model,-0.1221,43,11918,1280,10.7401,0.3448,13,207,0.5280,cf821f5
+pr,-0.1595,43,11918,1236,10.3709,1.0989,13,201,0.5127,cf821f5

@@ -1,0 +1,2 @@
+station,start,duration_days,severity,mean_score_model,mean_score_pr,mean_score_lag_forecast
+LSK North,2023-07-10,14,0.3000,-0.3147,-0.3166,-0.0079

@@ -1,0 +1,4 @@
+split,expected_from,n_trees,daytime_rmse_norm,daytime_nmae_pct
+train,out-of-fold,516,0.0546,3.1678
+val,out-of-fold,516,0.0476,2.9857
+test,final model,516,0.0768,4.2975
