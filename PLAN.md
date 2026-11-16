@@ -105,10 +105,10 @@ Every stage writes figures to `results/figures/<stage>_*.png` and tables to `res
 - **Viva question:** "How do you prevent data leakage, and why this split?"
 
 ### Stage 3: Baselines
-- **Status:** NOT STARTED · **Hours:** 8 · **Week:** 4
+- **Status:** IN PROGRESS · **Hours:** 8 · **Week:** 4
 - **Goal:** reference scores that every model must beat.
 - **Tasks**
-  - [ ] Persistence models (see §3 for the benchmark used in the skill score):
+  - [x] Persistence models (see §3 for the benchmark used in the skill score):
     - Last value (15 min, 1 h).
     - Same hour on the previous day, and the mean of the same hour over the last 7 days (day-ahead).
     - Smart persistence (clear-sky-index persistence).
@@ -417,3 +417,4 @@ PLAN.md  WORKLOG.md  DATA_SOURCES.md  README.md  CLAUDE.md  requirements.txt
 | 2026-11-16 | Vertical slice done: `python -m src.pipeline --horizon 1h` (`src/pipeline.py`) builds `data/processed/features_1h.parquet` in about 75 s: 57 stations (43 seen, 14 unseen), 1,133,152 rows, 36 columns, 98.0 % usable targets. `results/tables/02_split_summary.csv` written (rows, usable rows, stations, date range per role and split). Unseen stations keep their train/val rows in the table but carry `role = unseen`; models must train on `role == seen` only. Daytime usable seen rows: 26.1 % have a missing feature, almost all `tilt_deg` (`Mixed` stations, by design); other features ≤ 1.4 % missing. | Stage 2 vertical-slice task. |
 | 2026-11-16 | Pipeline extended to all horizons: `python -m src.pipeline --horizon 15min|1h|dayahead`. 15 min: 35 stations (24 seen, 11 unseen), 2,679,552 rows, 99.4 % usable, about 110 s. Day-ahead: 57 stations (43 seen, 14 unseen), 1,133,152 rows, 98.0 % usable, about 75 s. `results/tables/02_split_summary.csv` now holds all three horizons. Daytime usable seen rows with a missing feature (without `tilt_deg`): 15 min 1.1 %, day-ahead 5.5 % (mostly `power_d7`). | Remaining Stage 2 output after the vertical slice. |
 | 2026-11-16 | Stage 2 done. `notebooks/02_preprocessing_checks.ipynb` added (checks only: cleaning order, split summary, station sets, zero-output faults, clean vs gap-filled day `results/figures/02_clean_vs_filled_day.png`, missing features, seasons in training, leakage tests). `src/splits.py` and `src/pipeline.py` now use paths from the repo root, so they also run from `notebooks/`. | Stage 2 "Done when" met: one command per horizon, leakage tests pass, split table per horizon. |
+| 2026-11-16 | Persistence baselines (`src/models/baselines.py`): last value (15 min, 1 h); same hour D−1 and mean of the same hour D−1..D−7 (day-ahead; D−1 hour 23 left out); smart persistence = last value × clear-sky(T) / clear-sky(T − step), falling back to the last value when clear-sky(T − step) < 50 W/m²; day-ahead smart persistence = (D−1 daytime mean power / D−1 daytime mean clear-sky) × clear-sky(T). All predictions capped to [0, 1.2] and set to 0 below 5° sun elevation. Quick check (validation, seen, daytime usable, power/rated): 1 h MAE last value 0.089 vs smart 0.050; 15 min 0.042 vs 0.033; day-ahead D−1 0.080, 7-day 0.098, smart 0.089. 3 baseline leakage tests added (16 tests in total). | Stage 3 persistence task; formal metrics follow in `src/metrics.py`. |

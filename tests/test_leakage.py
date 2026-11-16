@@ -168,3 +168,37 @@ def test_folds_contain_only_seen_stations():
     for horizon in ["15min", "1h"]:
         folds = s.station_folds(horizon)
         assert set(folds.index) == set(s.stations_for(horizon, "seen"))
+
+
+# ------------------------------- 6. baselines use only the past as well
+
+def baseline_preds(builder, base, models):
+    table = builder(base)
+    table["station"] = "made-up"
+    return {name: fn(table) for name, fn in models.items()}
+
+
+@pytest.mark.parametrize("builder, freq, horizon", [
+    (f.features_15min, "15min", "15min"),
+    (f.features_1h, "1h", "1h"),
+])
+def test_intraday_baselines_use_only_the_past(builder, freq, horizon):
+    from src.models import baselines
+    base = make_base(freq)
+    T = pd.Timestamp("2022-06-10 12:00")
+    a = baseline_preds(builder, base, baselines.BASELINES[horizon])
+    b = baseline_preds(builder, junk_from(base, T), baselines.BASELINES[horizon])
+    for name in a:
+        assert a[name][T] == b[name][T], name
+
+
+def test_dayahead_baselines_use_only_data_before_23h():
+    from src.models import baselines
+    base = make_base("1h")
+    issue = pd.Timestamp("2022-06-09 23:00")
+    a = baseline_preds(f.features_dayahead, base, baselines.BASELINES["dayahead"])
+    b = baseline_preds(f.features_dayahead, junk_from(base, issue), baselines.BASELINES["dayahead"])
+    for hour in range(24):
+        T = pd.Timestamp("2022-06-10") + pd.Timedelta(hours=hour)
+        for name in a:
+            assert np.isclose(a[name][T], b[name][T], equal_nan=True), (name, hour)
