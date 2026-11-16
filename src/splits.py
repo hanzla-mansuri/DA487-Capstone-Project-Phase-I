@@ -71,3 +71,35 @@ def stations_for(horizon, role):
         table = table[table["in_15min"]]
     table = table[table["role"] == role]
     return sorted(table["station"])
+
+
+# Chronological split (PLAN §2 Stage 2). Dates are the TARGET times.
+TRAIN_END = "2022-09-30 23:59:59"
+VAL_END = "2022-12-31 23:59:59"
+
+
+def time_split(index):
+    """Label each target time as "train", "val" or "test".
+
+    - train: start .. 2022-09-30
+    - val:   2022-10-01 .. 2022-12-31
+    - test:  2023-01-01 .. 2023-12-31 (the full year)
+
+    The split uses the target time T. Lag features of the first validation
+    rows use the last training days: that is allowed, because those values
+    are in the past at the forecast time (a real forecast would use them too).
+    """
+    labels = pd.Series("test", index=index)
+    labels[index <= VAL_END] = "val"
+    labels[index <= TRAIN_END] = "train"
+    return labels
+
+
+def season(index):
+    """Meteorological season: winter = Dec-Feb, spring = Mar-May,
+    summer = Jun-Aug, autumn = Sep-Nov."""
+    names = {12: "winter", 1: "winter", 2: "winter",
+             3: "spring", 4: "spring", 5: "spring",
+             6: "summer", 7: "summer", 8: "summer",
+             9: "autumn", 10: "autumn", 11: "autumn"}
+    return pd.Series(index.month.map(names), index=index)
