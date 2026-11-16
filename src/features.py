@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import pvlib
 
+from src.preprocess import flag_zero_fault
+
 
 def calendar_features(index):
     """Hour of day and day of year, as numbers and as sine/cosine pairs.
@@ -172,13 +174,26 @@ def target_time_features(base):
 
 
 def add_target(out, base):
-    """The value to predict at T, and whether it was gap-filled.
+    """The value to predict at T, with two quality flags.
 
-    Filled targets are kept in the table but must never be used to evaluate
-    a model (PLAN §3, "Evaluation targets").
+    - `target_is_filled`: the value was gap-filled. Filled targets must never
+      be used to evaluate a model (PLAN §3, "Evaluation targets").
+    - `target_is_fault`: zero output although irradiance is at least
+      400 W/m2 (`preprocess.flag_zero_fault`). Left out of training and
+      evaluation, kept for Stage 8 (PLAN Change log 2026-11-16).
+
+    The fault flag looks at irradiance at T itself. That is fine because it
+    only labels the target row; it is never used as an input feature.
     """
     out["target"] = base["power_norm"]
     out["target_is_filled"] = base["is_filled"]
+    out["target_is_fault"] = flag_zero_fault(base["power_norm"], base["irradiance"])
+
+
+def usable_target(out):
+    """True for rows whose target may be used for training and evaluation:
+    observed (not missing, not filled) and not a zero-output fault."""
+    return out["target"].notna() & ~out["target_is_filled"] & ~out["target_is_fault"]
 
 
 def features_15min(base):
