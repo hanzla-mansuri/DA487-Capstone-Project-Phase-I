@@ -242,6 +242,8 @@ def build_weather(freq):
     the 1500-2000 W/m2 flag is kept as the share of flagged minutes.
     Rainfall is NOT used: it exists for 2022-2023 only (PLAN Change log
     2026-11-16). `resample_weather(..., how="sum")` would be used for it.
+    Humidity is NOT used: the sensor is faulty in 2021-01..03 (stuck at
+    10-15 %, 0 % at noon) and on 2023-05-17..24 (jumps between 0 and 100 %).
     """
     irr = read_weather("irradiance")["Irradiance (W/m2)"]
     irr, high_flag = mask_irradiance_outliers(irr)
@@ -257,7 +259,6 @@ def build_weather(freq):
         "irradiance": resample_weather(irr, freq),
         "irr_high_share": resample_weather(high_flag.astype(float), freq),
         "temperature": resample_weather(read_weather("temperature")["Temp (Degree Celsius)"], freq),
-        "humidity": resample_weather(read_weather("humidity")["RH (%)"], freq),
         "pressure": resample_weather(read_weather("pressure")["SLP (hPa)"], freq),
         "visibility": resample_weather(read_weather("visibility")["Vis (km)"], freq),
         "wind_speed": resample_weather(wind["Wind Speed (m/s)"], freq),
