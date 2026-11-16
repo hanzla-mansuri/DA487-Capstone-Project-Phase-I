@@ -3,16 +3,20 @@
 Station roles (per station, the same for every horizon it belongs to):
 - "seen":     used in train, validation and test;
 - "unseen":   test only, never used for training (little or no training
-              data); evaluated as unseen stations in Stage 9;
+              data, or a random hold-out); evaluated in Stage 9;
 - "excluded": not used at all.
 
 Horizon sets:
 - 15 min: the 37 optimizer stations (15-min data);
 - 1 h and day-ahead: all 60 stations (optimizer stations averaged to hourly).
 """
+import numpy as np
 import pandas as pd
 
 STAGE1_TABLE = "results/tables/01_station_sets.csv"
+SEED = 42
+N_HOLDOUT = 6
+N_FOLDS = 5
 
 # Decisions made after the Stage 1 gate (PLAN Change log 2026-11-16).
 DROPPED = {
@@ -54,6 +58,13 @@ def station_sets():
         table.loc[table["station"] == station, "role"] = "excluded"
         table.loc[table["station"] == station, "reason"] = reason
 
+    # random hold-outs: drawn once from the seen optimizer stations, so the
+    # same stations are unseen at every horizon (PLAN Change log 2026-11-16)
+    held_out = random_holdouts(table)
+    table.loc[table["station"].isin(held_out), "role"] = "unseen"
+    table.loc[table["station"].isin(held_out), "reason"] = (
+        f"random hold-out (seed {SEED}); has training data, but never trained on")
+
     table["in_15min"] = table["has_optimizer"]
     table["in_1h_dayahead"] = True
 
@@ -71,6 +82,34 @@ def stations_for(horizon, role):
         table = table[table["in_15min"]]
     table = table[table["role"] == role]
     return sorted(table["station"])
+
+
+def random_holdouts(table):
+    """Draw N_HOLDOUT stations at random (fixed seed) from the seen optimizer
+    stations. Optimizer stations are in both horizon sets, so one draw gives
+    the same unseen stations for 15 min, 1 h and day-ahead.
+
+    The list is sorted before drawing, so the result does not depend on the
+    row order of the table.
+    """
+    pool = table[(table["role"] == "seen") & table["has_optimizer"]]
+    pool = sorted(pool["station"])
+    rng = np.random.default_rng(SEED)
+    return sorted(rng.choice(pool, size=N_HOLDOUT, replace=False))
+
+
+def station_folds(horizon):
+    """Station-grouped K-fold for the GBM generalisation estimate (Stage 9).
+
+    Every SEEN station of the horizon set gets one fold number 0..N_FOLDS-1.
+    All rows of a station are in the same fold, so a model is always tested
+    on stations it was not trained on. Fixed seed; the list is sorted first.
+    """
+    stations = stations_for(horizon, "seen")
+    rng = np.random.default_rng(SEED)
+    shuffled = rng.permutation(stations)
+    folds = {station: i % N_FOLDS for i, station in enumerate(shuffled)}
+    return pd.Series(folds, name="fold").sort_index()
 
 
 # Chronological split (PLAN §2 Stage 2). Dates are the TARGET times.
