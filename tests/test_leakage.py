@@ -228,3 +228,43 @@ def test_ridge_fill_and_scaler_use_train_rows_only():
     assert np.allclose(a[1].mean_, b[1].mean_)                # scaler mean
     assert np.allclose(a[1].scale_, b[1].scale_)              # scaler std
     assert np.allclose(a[2].coef_, b[2].coef_)                # ridge weights
+
+
+# ---------------------------------------------------------------- irradiance sensor level
+
+def clear_irradiance(days=120):
+    """Hourly irradiance of made-up clear days: 0.8 x clear-sky."""
+    index = pd.date_range("2022-01-01", periods=days * 24, freq="1h")
+    solar = f.solar_features(index, "1h", p.CAMPUS_LAT, p.CAMPUS_LON)
+    return 0.8 * solar["clearsky_ghi"]
+
+
+def test_irradiance_level_uses_earlier_days_only():
+    irr = clear_irradiance()
+    junk = irr.copy()
+    cut = pd.Timestamp("2022-03-01")
+    junk[junk.index >= cut] = 9999.0
+    a = p.irradiance_level(irr)
+    b = p.irradiance_level(junk)
+    assert np.allclose(a[:cut], b[:cut])          # the level of the cut day itself is unchanged
+
+
+def test_calibration_removes_a_sensor_step():
+    """A sensor that reads 1.6 x higher from one day on is brought back to
+    the old scale once the trailing window has seen the new level."""
+    irr = clear_irradiance()
+    step = irr.copy()
+    change = pd.Timestamp("2022-03-01")
+    step[step.index >= change] *= 1.6
+    calibrated, _ = p.calibrate_irradiance(step, p.irradiance_level(step), reference=0.8)
+    noon_before = calibrated["2022-02-20 12:00"]
+    noon_after = calibrated["2022-04-20 12:00"]
+    assert np.isclose(noon_after / irr["2022-04-20 12:00"], noon_before / irr["2022-02-20 12:00"], rtol=0.02)
+
+
+def test_dead_sensor_is_set_to_missing():
+    irr = clear_irradiance()
+    irr[irr.index >= pd.Timestamp("2022-02-01")] *= 0.01
+    calibrated, _ = p.calibrate_irradiance(irr, p.irradiance_level(irr), reference=0.8)
+    assert calibrated["2022-04-01":].isna().all()
+    assert calibrated["2022-01-20":"2022-01-30"].notna().all()

@@ -235,6 +235,69 @@ def resample_wind_direction(degrees, freq, min_share=0.8):
     return angle % 360
 
 
+# ---------------------------------------------------------------------------
+# Irradiance sensor level (PLAN Change log 2026-11-16, "irradiance step").
+#
+# The campus irradiance sensor changes its scale on about 2023-02-15: on
+# clear days the reading jumps from about 0.85 x clear-sky to about 1.38 x
+# clear-sky (factor ~1.6) while the PV output does not change. Almost the
+# whole test year is on the new scale, so a model trained on 2021-2022
+# irradiance would read 2023 wrongly.
+#
+# Fix: divide the irradiance by the sensor's own RECENT clear-day level.
+# The level of a day is the 90th percentile, over the 30 days BEFORE it, of
+# the daily peak of (hourly irradiance / clear-sky irradiance) at sun
+# elevation >= 30 degrees. It uses only the irradiance itself and the sun
+# position, never power, and only earlier days (causal), so the same rule
+# would work in live operation. After a jump the level needs a few clear days
+# to catch up; that period stays in the evaluation.
+# ---------------------------------------------------------------------------
+CAMPUS_LAT, CAMPUS_LON = 22.34, 114.26
+LEVEL_DAYS = 30               # trailing window
+LEVEL_MIN_DAYS = 10           # days needed before a level is trusted
+LEVEL_QUANTILE = 0.9
+LEVEL_MIN_ELEVATION = 30      # degrees
+LEVEL_REFERENCE_END = "2022-09-30"   # end of the training period
+LEVEL_DEAD = 0.5              # below this the sensor is not working
+
+
+def irradiance_level(irr, lat=CAMPUS_LAT, lon=CAMPUS_LON):
+    """Daily sensor level: how high the sensor reads on recent clear days,
+    as a share of clear-sky irradiance. One value per day, from EARLIER days
+    only. `irr` is a cleaned irradiance series at any step (1 min .. 1 h)."""
+    hourly = irr.resample("1h", label="left", closed="left").mean()
+    middle = (hourly.index + pd.Timedelta("30min")).tz_localize("Etc/GMT-8")
+    pos = pvlib.solarposition.get_solarposition(middle, lat, lon)
+    clearsky = pvlib.clearsky.haurwitz(pos["apparent_zenith"])["ghi"].to_numpy()
+    high_sun = pos["elevation"].to_numpy() >= LEVEL_MIN_ELEVATION
+
+    ratio = (hourly / clearsky).where(high_sun)
+    daily_peak = ratio.groupby(ratio.index.normalize()).max().asfreq("D")
+    level = daily_peak.shift(1).rolling(LEVEL_DAYS, min_periods=LEVEL_MIN_DAYS).quantile(LEVEL_QUANTILE)
+    # the first days of the series have no earlier days: use the first known level
+    return level.bfill()
+
+
+def calibrate_irradiance(irr, level, reference=None):
+    """Irradiance on a constant sensor scale: irr / level x reference.
+
+    `reference` is the median level of the training period, so training-period
+    values stay about the same and later values are brought onto that scale.
+    Returns (calibrated series, reference).
+
+    Dead sensor: when the level is below LEVEL_DEAD (clear days read less
+    than half of clear-sky for weeks), the irradiance is set to missing.
+    This happens from late March to mid May 2021, when the sensor reads
+    about 0 all day (monthly maximum 17 W/m2 in April 2021).
+    """
+    if reference is None:
+        reference = float(level[:LEVEL_REFERENCE_END].median())
+    level_of_row = level.reindex(irr.index.normalize()).to_numpy()
+    calibrated = irr / level_of_row * reference
+    calibrated[level_of_row < LEVEL_DEAD] = float("nan")
+    return calibrated, reference
+
+
 def build_weather(freq):
     """All weather variables at `freq` steps, one column each.
 
@@ -255,8 +318,14 @@ def build_weather(freq):
     spike = wind["Wind Speed (m/s)"] > 20
     wind.loc[spike, :] = float("nan")
 
+    # sensor-level correction (see `irradiance_level`); the raw values are kept
+    level = irradiance_level(irr)
+    irr_raw = resample_weather(irr, freq)
+    irr_calibrated, _ = calibrate_irradiance(irr_raw, level)
+
     columns = {
-        "irradiance": resample_weather(irr, freq),
+        "irradiance": irr_calibrated,
+        "irradiance_raw": irr_raw,
         "irr_high_share": resample_weather(high_flag.astype(float), freq),
         "temperature": resample_weather(read_weather("temperature")["Temp (Degree Celsius)"], freq),
         "pressure": resample_weather(read_weather("pressure")["SLP (hPa)"], freq),
