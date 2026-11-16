@@ -115,3 +115,163 @@ def station_features(inventory):
             "multi_orientation": int(tilt_multi or az_multi),
         })
     return pd.DataFrame(rows).set_index("station")
+
+
+# ---------------------------------------------------------------------------
+# Lag and rolling features (PLAN Change log 2026-11-16, "lags and windows").
+#
+# Timing rule: every table here is on a regular grid with one row per step,
+# labelled at the interval START. Row t is only known at t + step. The output
+# row is labelled with the TARGET time T (forecast issued at T), so the newest
+# known input row is T - step: that is lag 1. `shift(k)` moves row T - k*step
+# onto row T. Rolling windows are computed on `shift(1)`, so they end at lag 1.
+# ---------------------------------------------------------------------------
+
+
+def add_lags(out, series, lags, name):
+    """Add one column per lag: `name_lag{k}` = value k steps before T."""
+    for k in lags:
+        out[f"{name}_lag{k}"] = series.shift(k)
+
+
+def add_rolling(out, series, window, name, stats=("mean",)):
+    """Add trailing statistics over the last `window` known rows (lag 1..window).
+
+    The window must be complete; if any value in it is missing, the result
+    is missing.
+    """
+    past = series.shift(1).rolling(window, min_periods=window)
+    if "mean" in stats:
+        out[f"{name}_mean{window}"] = past.mean()
+    if "std" in stats:
+        out[f"{name}_std{window}"] = past.std()
+
+
+def build_base(power, weather, freq, lat, lon):
+    """One station's data on one grid: power, weather and solar features.
+
+    `power` has `power_norm` and `is_filled`; `weather` comes from
+    `preprocess.build_weather(freq)`. Rows are kept for the station's own
+    time range only. Adds the clear-sky index of the measured irradiance.
+    """
+    base = power[["power_norm", "is_filled"]].join(weather, how="left")
+    solar = solar_features(base.index, freq, lat, lon)
+    base = base.join(solar)
+    base["csi"] = clear_sky_index(base["irradiance"], base["clearsky_ghi"],
+                                  base["sun_elevation"])
+    return base
+
+
+def target_time_features(base):
+    """Features known in advance for the target time T (calendar and sun)."""
+    out = calendar_features(base.index)
+    out["sun_elevation"] = base["sun_elevation"]
+    out["sun_azimuth"] = base["sun_azimuth"]
+    out["clearsky_ghi"] = base["clearsky_ghi"]
+    return out
+
+
+def add_target(out, base):
+    """The value to predict at T, and whether it was gap-filled.
+
+    Filled targets are kept in the table but must never be used to evaluate
+    a model (PLAN §3, "Evaluation targets").
+    """
+    out["target"] = base["power_norm"]
+    out["target_is_filled"] = base["is_filled"]
+
+
+def features_15min(base):
+    """Features for the 15-min horizon (15-min rows; target = row T)."""
+    out = target_time_features(base)
+
+    add_lags(out, base["power_norm"], [1, 2, 3, 4, 8, 96], "power")
+    add_rolling(out, base["power_norm"], 4, "power", stats=("mean", "std"))
+
+    add_lags(out, base["irradiance"], [1, 2, 4], "irr")
+    add_rolling(out, base["irradiance"], 4, "irr")
+
+    add_lags(out, base["csi"], [1, 2], "csi")
+    add_rolling(out, base["csi"], 4, "csi")
+
+    for col in ["temperature", "wind_speed", "pressure", "visibility"]:
+        add_lags(out, base[col], [1], col)
+
+    add_target(out, base)
+    return out
+
+
+def features_1h(base):
+    """Features for the 1-h horizon (hourly rows; target = hour T)."""
+    out = target_time_features(base)
+
+    add_lags(out, base["power_norm"], [1, 2, 3, 24], "power")
+    add_rolling(out, base["power_norm"], 3, "power", stats=("mean", "std"))
+
+    add_lags(out, base["irradiance"], [1, 2], "irr")
+    add_rolling(out, base["irradiance"], 3, "irr")
+
+    add_lags(out, base["csi"], [1, 2], "csi")
+    add_rolling(out, base["csi"], 3, "csi")
+
+    for col in ["temperature", "wind_speed", "pressure", "visibility"]:
+        add_lags(out, base[col], [1], col)
+
+    add_target(out, base)
+    return out
+
+
+def previous_day_value(base, daily):
+    """Map a daily Series (indexed by date D-1) onto the hourly rows of day D."""
+    shifted = daily.copy()
+    shifted.index = shifted.index + pd.Timedelta("1D")
+    target_dates = base.index.normalize()
+    return shifted.reindex(target_dates).to_numpy()
+
+
+def features_dayahead(base):
+    """Features for day-ahead (hourly rows of day D; issued 23:00 on D-1).
+
+    The newest known row at issue time is 22:00 on D-1 (it covers
+    22:00-23:00). The 23:00 row of D-1 is only known at midnight.
+    """
+    out = target_time_features(base)
+    power = base["power_norm"]
+
+    # same hour on D-1, D-2, D-7 (24, 48, 168 hourly rows back)
+    out["power_d1"] = power.shift(24)
+    out["power_d2"] = power.shift(48)
+    out["power_d7"] = power.shift(168)
+    # hour 23 of D-1 ends at midnight, after the issue time
+    out.loc[out.index.hour == 23, "power_d1"] = float("nan")
+
+    # D-1 summaries (daytime rows end by 19:00, so all are known at 23:00)
+    day = base["sun_elevation"] >= 5
+    out["power_d1_daymean"] = previous_day_value(
+        base, power[day].groupby(power[day].index.normalize()).mean())
+    out["csi_d1_daymean"] = previous_day_value(
+        base, base["csi"][day].groupby(base.index[day].normalize()).mean())
+
+    # D-1 mean temperature: rows 00:00-22:00 only (the 23:00 row is not known)
+    known = base.index.hour <= 22
+    temp = base["temperature"][known]
+    out["temp_d1_mean"] = previous_day_value(
+        base, temp.groupby(temp.index.normalize()).mean())
+
+    # weather from the 22:00 row of D-1
+    at22 = base[base.index.hour == 22]
+    at22 = at22.set_index(at22.index.normalize())
+    for col in ["temperature", "pressure", "visibility"]:
+        out[f"{col}_d1_22h"] = previous_day_value(base, at22[col])
+    pressure_change = at22["pressure"] - at22["pressure"].shift(1, freq="1D")
+    out["pressure_change_24h"] = previous_day_value(base, pressure_change)
+
+    add_target(out, base)
+    return out
+
+
+def add_station_features(out, station_row):
+    """Copy the static station features (one row of `station_features`)."""
+    for col, value in station_row.items():
+        out[col] = value
+    return out

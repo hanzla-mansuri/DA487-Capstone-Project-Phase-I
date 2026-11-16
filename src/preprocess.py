@@ -310,3 +310,21 @@ def cut_before_capacity_change(df, station):
         return df, 0
     out = df[df.index >= USE_FROM[station]]
     return out, len(df) - len(out)
+
+
+def to_hourly(df):
+    """Average a cleaned 15-min station table to hourly steps (interval start).
+
+    Stage 1 to-do item 11: the 1-h and day-ahead horizons use hourly data for
+    all stations. An hour is kept only if all four 15-min values are present.
+    An hour counts as filled if any of its four values was filled.
+    `df` has columns `power(W)`, `power_norm` and `is_filled`.
+    """
+    groups = df.resample("1h", label="left", closed="left")
+    complete = groups["power(W)"].count() == 4
+
+    out = pd.DataFrame(index=complete.index)
+    out["power(W)"] = groups["power(W)"].mean().where(complete)
+    out["power_norm"] = groups["power_norm"].mean().where(complete)
+    out["is_filled"] = groups["is_filled"].max().astype(bool)
+    return out
