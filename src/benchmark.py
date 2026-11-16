@@ -24,6 +24,10 @@ Outputs:
     results/tables/06_efficiency.csv   (with the hardware specs)
     results/figures/06_accuracy_vs_latency.png
 """
+import argparse
+import json
+import subprocess
+import sys
 import time
 import warnings
 
@@ -190,14 +194,7 @@ def lstm_models(horizon):
     window, n = info["window"], len(scaler["mean"])
     models = {"lstm": (net, info["fit_seconds"], size_kb(path), f"hidden {info['hidden']}, fp32")}
 
-    try:
-        quantized = quantize_lstm(net)
-        qpath = evaluate.MODELS / f"lstm_{horizon}_int8.pt"
-        torch.save(quantized.state_dict(), qpath)
-        models["lstm_int8"] = (quantized, np.nan, size_kb(qpath), "torch dynamic quantization, int8")
-    except Exception as error:
-        models["lstm_int8"] = (None, np.nan, np.nan, f"quantization failed: {str(error)[:120]}")
-
+    # the int8 model is measured in its own process, see `int8_row`
     try:
         opath = evaluate.MODELS / f"lstm_{horizon}.onnx"
         export_lstm_onnx(net, window, n, opath)
@@ -258,10 +255,62 @@ def bench_horizon(horizon):
                     row["batch_ms_per_sample"] = median_ms(lambda: net(many_w), BATCH_REPEATS) / BATCH
             rows.append(row)
 
+        rows.append(int8_row(horizon))
+
     out = pd.DataFrame(rows)
     out["feature_ms"] = feature_ms
     out["end_to_end_single_ms"] = out["feature_ms"] + out["single_ms"]
     return out
+
+
+def measure_int8(horizon):
+    """Size, accuracy and latency of the int8 LSTM (runs in a child process)."""
+    table = evaluate.load_table(horizon)
+    table = table[table["split"] == "test"]
+    bench = evaluate.benchmark(table, horizon)
+    rated = evaluate.rated_kW(table)
+    net, scaler, info = lstm.load(evaluate.MODELS / f"lstm_{horizon}.pt")
+    quantized = quantize_lstm(net)
+    path = evaluate.MODELS / f"lstm_{horizon}_int8.pt"
+    torch.save(quantized.state_dict(), path)
+
+    window = lstm.WINDOW[horizon]
+    scaled = lstm.scale(table, scaler)
+    ends = lstm.window_ends(table, window, evaluate.eval_mask(table, "test", "daytime"))
+    one_w = lstm.make_batch(scaled, ends[:1], window)
+    many_w = lstm.make_batch(scaled, ends[:BATCH], window)
+
+    row = {"horizon": horizon, "model": "lstm_int8", "train_seconds": None, "size_kB": size_kb(path),
+           "note": "torch dynamic quantization, int8 (qnnpack)"}
+    pred = lstm.predict(quantized, scaler, table, horizon)
+    row["test_nmae_pct"], row["test_rmse_norm"], row["test_skill"] = accuracy(table, pred, bench, rated)
+    with torch.no_grad():
+        row["single_ms"] = median_ms(lambda: quantized(one_w), SINGLE_REPEATS)
+        row["batch_ms_per_sample"] = median_ms(lambda: quantized(many_w), BATCH_REPEATS) / BATCH
+    return row
+
+
+def int8_row(horizon, attempts=3):
+    """Run `measure_int8` in a child process.
+
+    On this CPU (no AVX2) quantized inference sometimes stops with an
+    "illegal instruction" signal, which cannot be caught inside Python. In a
+    child process the crash is seen as a failed exit code, so it can be
+    retried and, if it keeps failing, written down instead of ending the run.
+    """
+    out_file = evaluate.MODELS / f"int8_{horizon}.json"
+    for attempt in range(1, attempts + 1):
+        out_file.unlink(missing_ok=True)
+        done = subprocess.run([sys.executable, "-W", "ignore", "-m", "src.benchmark",
+                               "--int8", horizon], cwd=evaluate.REPO)
+        if done.returncode == 0 and out_file.exists():
+            row = json.loads(out_file.read_text())
+            if attempt > 1:
+                row["note"] += f"; crashed {attempt - 1} time(s) before this run"
+            return row
+        print(f"   int8 {horizon}: attempt {attempt} failed (exit code {done.returncode})")
+    return {"horizon": horizon, "model": "lstm_int8",
+            "note": f"int8 inference crashed {attempts} times (illegal instruction, CPU without AVX2)"}
 
 
 def add_export_change(results):
@@ -319,4 +368,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Stage 6: efficiency benchmark.")
+    parser.add_argument("--int8", choices=sorted(lstm.WINDOW),
+                        help="internal: measure the int8 LSTM of one horizon and write a json file")
+    args = parser.parse_args()
+    if args.int8:
+        torch.set_num_threads(4)
+        result = measure_int8(args.int8)
+        (evaluate.MODELS / f"int8_{args.int8}.json").write_text(json.dumps(result))
+    else:
+        main()

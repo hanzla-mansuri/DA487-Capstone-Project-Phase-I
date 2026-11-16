@@ -16,7 +16,7 @@ Rules for this run (user reply 2026-11-16: "autonomous, push is fine, skip licen
 |---|---|---|
 | 1 | Stage 4: tune 15 min + day-ahead, final refit, test evaluation, saved models (+ irradiance sensor fix) | DONE |
 | 2 | Stage 5: LSTM (15 min, 1 h) | DONE |
-| 3 | Stage 6: efficiency benchmark, ONNX, int8 quantization | IN PROGRESS (script written, first full run not yet checked) |
+| 3 | Stage 6: efficiency benchmark, ONNX, int8 quantization | DONE |
 | 4 | Stage 7: SHAP explainability and stability | DONE |
 | 5 | Stage 8: residual-based fault flagging | DONE |
 | 6 | Stage 9: unseen stations, grouped K-fold, Kaggle transfer check | DONE |
