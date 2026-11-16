@@ -1,10 +1,12 @@
 """One command from raw data to a model-ready table (Stage 2).
 
+    python -m src.pipeline --horizon 15min
     python -m src.pipeline --horizon 1h
+    python -m src.pipeline --horizon dayahead
 
 Steps for every station in the horizon set (seen and unseen; excluded
 stations are skipped):
-    clean (preprocess) -> hourly -> weather + solar -> features + target
+    clean (preprocess) -> hourly (1 h, day-ahead) -> weather + solar -> features + target
     -> station features -> time split and station role
 Output:
     data/processed/features_<horizon>.parquet   (git-ignored)
@@ -22,8 +24,18 @@ OUT_DIR = Path("data/processed")
 SUMMARY = Path("results/tables/02_split_summary.csv")
 
 BUILDERS = {
+    "15min": features.features_15min,
     "1h": features.features_1h,
+    "dayahead": features.features_dayahead,
 }
+
+
+def grid_of(horizon):
+    """Time step of the feature table: 15 min for the 15-min horizon,
+    hourly for 1 h and day-ahead."""
+    if horizon == "15min":
+        return "15min"
+    return "1h"
 
 
 def clean_station(station, path, has_optimizer, inventory):
@@ -59,11 +71,13 @@ def build_station(station, path, has_optimizer, inventory, weather, horizon):
     row = inventory.set_index("station").loc[station]
     df = clean_station(station, path, has_optimizer, inventory)
 
-    # 1-h and day-ahead use hourly data for all stations
-    if has_optimizer:
+    # 1-h and day-ahead use hourly data for all stations;
+    # 15 min uses the 15-min data of the optimizer stations as it is
+    freq = grid_of(horizon)
+    if has_optimizer and freq == "1h":
         df = preprocess.to_hourly(df)
 
-    base = features.build_base(df, weather, "1h", row["latitude"], row["longitude"])
+    base = features.build_base(df, weather, freq, row["latitude"], row["longitude"])
     out = BUILDERS[horizon](base)
     out["usable"] = features.usable_target(out)
     out["station"] = station
@@ -76,7 +90,7 @@ def build_horizon(horizon):
     files = data_io.list_station_files().set_index("station")
     sets = splits.station_sets().set_index("station")
     meta = features.station_features(inventory)
-    weather = preprocess.build_weather("1h")
+    weather = preprocess.build_weather(grid_of(horizon))
 
     stations = splits.stations_for(horizon, "seen") + splits.stations_for(horizon, "unseen")
     tables = []
