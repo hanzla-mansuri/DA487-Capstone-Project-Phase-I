@@ -202,3 +202,29 @@ def test_dayahead_baselines_use_only_data_before_23h():
         T = pd.Timestamp("2022-06-10") + pd.Timedelta(hours=hour)
         for name in a:
             assert np.isclose(a[name][T], b[name][T], equal_nan=True), (name, hour)
+
+
+# ------------- 7. ridge: median fill and scaler are fitted on train only
+
+def test_ridge_fill_and_scaler_use_train_rows_only():
+    from src.models import ridge
+    table = f.features_1h(make_base("1h"))
+    table["usable"] = f.usable_target(table)
+    table["station"] = "made-up"
+    table["role"] = "seen"
+    table["split"] = "train"
+    table.loc[table.index >= "2022-06-12", "split"] = "val"
+    table.loc[table.index >= "2022-06-16", "split"] = "test"
+
+    other = table.copy()
+    not_train = other["split"] != "train"
+    features = ridge.feature_columns(other)
+    other.loc[not_train, features] = 9999.0      # junk outside train
+    other.loc[not_train, "target"] = 9999.0
+
+    a = ridge.fit(table, alpha=1.0)
+    b = ridge.fit(other, alpha=1.0)
+    assert np.allclose(a[0].statistics_, b[0].statistics_)    # medians
+    assert np.allclose(a[1].mean_, b[1].mean_)                # scaler mean
+    assert np.allclose(a[1].scale_, b[1].scale_)              # scaler std
+    assert np.allclose(a[2].coef_, b[2].coef_)                # ridge weights
